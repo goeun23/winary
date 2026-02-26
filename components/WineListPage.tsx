@@ -6,38 +6,52 @@ import { useRouter } from "next/navigation"
 import PageHeader from "@/components/PageHeader"
 import type { ReviewItem } from "@/types/review"
 
-type FilterCategory = "ALL" | "Red" | "White" | "Sparkling" | "Rosé" | "Dessert"
+import {
+  WINE_CATEGORY_CONFIG,
+  type WineCategory,
+  CATEGORY_LABELS,
+  WINE_TYPE_MAP,
+} from "@/types/wine"
 
-const FILTER_OPTIONS: { key: FilterCategory; label: string }[] = [
+type FilterCategory = "ALL" | WineCategory | string
+
+const FILTER_OPTIONS = [
   { key: "ALL", label: "전체" },
-  { key: "Red", label: "레드" },
-  { key: "White", label: "화이트" },
-  { key: "Sparkling", label: "스파클링" },
-  { key: "Rosé", label: "로제" },
+  ...Object.entries(WINE_CATEGORY_CONFIG).map(([key, config]) => ({
+    key: config.label as FilterCategory,
+    label: config.label,
+  })),
 ]
 
-const FILTER_COLORS: Record<FilterCategory, { activeBg: string; activeText: string }> = {
+const FILTER_COLORS = {
   ALL: { activeBg: "#191f28", activeText: "#ffffff" },
-  Red: { activeBg: "#ff4d4f", activeText: "#ffffff" },
-  White: { activeBg: "#d4a017", activeText: "#ffffff" },
-  Sparkling: { activeBg: "#3182f6", activeText: "#ffffff" },
-  Rosé: { activeBg: "#e8899e", activeText: "#ffffff" },
-  Dessert: { activeBg: "#9b59b6", activeText: "#ffffff" },
-}
+  ...Object.fromEntries(
+    Object.values(WINE_CATEGORY_CONFIG).map((config) => [
+      config.label,
+      { activeBg: config.color, activeText: "#ffffff" },
+    ]),
+  ),
+} as Record<FilterCategory, { activeBg: string; activeText: string }>
 
-const TYPE_BADGE: Record<string, { bg: string; text: string; label: string }> = {
-  Red: { bg: "#fff0f0", text: "#ff4d4f", label: "레드" },
-  White: { bg: "#fffbe6", text: "#d4a017", label: "화이트" },
-  Sparkling: { bg: "#f0f7ff", text: "#3182f6", label: "스파클링" },
-  Rosé: { bg: "#fff0f5", text: "#e8899e", label: "로제" },
-  Dessert: { bg: "#faf0ff", text: "#9b59b6", label: "디저트" },
-}
+const TYPE_BADGE = Object.fromEntries(
+  Object.entries(WINE_CATEGORY_CONFIG).map(([key, config]) => [
+    key,
+    {
+      bg: config.bgColor,
+      text: config.color,
+      label: config.label,
+      icon: config.icon,
+    },
+  ]),
+) as Record<string, { bg: string; text: string; label: string; icon: string }>
 
 interface WineListPageProps {
   reviews: ReviewItem[]
+  onBack?: () => void
+  onSelectPost?: (postId: string) => void
 }
 
-const WineListPage = ({ reviews }: WineListPageProps) => {
+const WineListPage = ({ reviews, onBack, onSelectPost }: WineListPageProps) => {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [isFocused, setIsFocused] = useState(false)
@@ -47,7 +61,13 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
     let posts = reviews
 
     if (activeFilter !== "ALL") {
-      posts = posts.filter((p) => p.wineType === activeFilter)
+      posts = posts.filter((p) => {
+        // p.wineType은 "Red", "White" 등이고 activeFilter는 "레드", "화이트" 등일 수 있음
+        const label =
+          WINE_CATEGORY_CONFIG[activeFilter as WineCategory]?.label ||
+          activeFilter
+        return p.wineType === label || p.wineType === activeFilter
+      })
     }
 
     if (searchTerm.trim()) {
@@ -55,7 +75,7 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
       posts = posts.filter(
         (p) =>
           p.wineName.toLowerCase().includes(q) ||
-          p.wineRegion.toLowerCase().includes(q)
+          p.wineRegion.toLowerCase().includes(q),
       )
     }
 
@@ -65,7 +85,13 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
   const renderStars = (rating: number) => (
     <span style={{ display: "inline-flex", gap: "1px" }}>
       {[1, 2, 3, 4, 5].map((i) => (
-        <span key={i} style={{ color: i <= rating ? "#fbbf24" : "#e5e8eb", fontSize: "13px" }}>
+        <span
+          key={i}
+          style={{
+            color: i <= rating ? "#fbbf24" : "#e5e8eb",
+            fontSize: "13px",
+          }}
+        >
           ★
         </span>
       ))}
@@ -97,7 +123,10 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
         .wl-filter-btn:active { transform: scale(0.95); }
       `}</style>
 
-      <PageHeader title="와인 리스트" onBack={() => router.push("/")} />
+      <PageHeader
+        title="와인 리스트"
+        onBack={() => (onBack ? onBack() : router.push("/"))}
+      />
 
       {/* Search Bar */}
       <div style={{ padding: "0 20px 8px 20px" }}>
@@ -141,7 +170,9 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
               outline: "none",
               boxSizing: "border-box",
               transition: "all 0.2s ease",
-              boxShadow: isFocused ? "0 0 0 4px rgba(49, 130, 246, 0.08)" : "none",
+              boxShadow: isFocused
+                ? "0 0 0 4px rgba(49, 130, 246, 0.08)"
+                : "none",
             }}
           />
           {searchTerm && (
@@ -164,7 +195,12 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
               }}
             >
               <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                <path d="M9 3L3 9M3 3L9 9" stroke="#8b95a1" strokeWidth="1.5" strokeLinecap="round" />
+                <path
+                  d="M9 3L3 9M3 3L9 9"
+                  stroke="#8b95a1"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
           )}
@@ -226,12 +262,17 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
       >
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post, index) => {
-            const badge = TYPE_BADGE[post.wineType] ?? TYPE_BADGE.Red
+            const catKey = WINE_TYPE_MAP[post.wineType] || "RED"
+            const badge = TYPE_BADGE[catKey]
             return (
               <div
                 key={post.id}
                 className="wl-card"
-                onClick={() => router.push(`/reviews/${post.id}`)}
+                onClick={() =>
+                  onSelectPost
+                    ? onSelectPost(post.id)
+                    : router.push(`/reviews/${post.id}`)
+                }
                 style={{
                   display: "flex",
                   gap: "14px",
@@ -257,9 +298,14 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
                   }}
                 >
                   <img
-                    src={post.imageUrl || "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&q=80&w=400"}
+                    src={post.imageUrl || badge.icon}
                     alt={post.wineName}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                      padding: post.imageUrl ? 0 : "4px",
+                    }}
                   />
                 </div>
 
@@ -274,7 +320,13 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
                     minWidth: 0,
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
                     <span
                       style={{
                         fontSize: "11px",
@@ -288,7 +340,13 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
                     >
                       {badge.label}
                     </span>
-                    <Text style={{ fontSize: "12px", color: "#8b95a1", flexShrink: 0 }}>
+                    <Text
+                      style={{
+                        fontSize: "12px",
+                        color: "#8b95a1",
+                        flexShrink: 0,
+                      }}
+                    >
                       {post.wineRegion}
                     </Text>
                   </div>
@@ -307,7 +365,13 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
                     {post.wineName}
                   </Text>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
                     {renderStars(post.rating)}
                     <Text style={{ fontSize: "12px", color: "#b0b8c1" }}>
                       {post.createdAt}
@@ -316,7 +380,14 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
                 </div>
 
                 {/* Arrow */}
-                <div style={{ display: "flex", alignItems: "center", flexShrink: 0, color: "#b0b8c1" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexShrink: 0,
+                    color: "#b0b8c1",
+                  }}
+                >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path
                       d="M9 6L15 12L9 18"
@@ -343,7 +414,9 @@ const WineListPage = ({ reviews }: WineListPageProps) => {
             }}
           >
             <div style={{ fontSize: "48px" }}>🍷</div>
-            <Text style={{ fontSize: "16px", fontWeight: "600", color: "#191f28" }}>
+            <Text
+              style={{ fontSize: "16px", fontWeight: "600", color: "#191f28" }}
+            >
               등록된 와인이 없어요
             </Text>
             <Text style={{ fontSize: "14px", color: "#8b95a1" }}>

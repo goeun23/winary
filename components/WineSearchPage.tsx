@@ -1,30 +1,30 @@
 "use client"
-
 import { useState, useEffect, useRef } from "react"
 import { Text, TextField, ListRow, BottomSheet } from "@toss/tds-mobile"
 import { adaptive } from "@toss/tds-colors"
-import { useRouter } from "next/navigation"
-import type { WineInfoLocal } from "@/types/wine"
-import { CATEGORY_LABELS, CATEGORY_COLORS, WINE_AREA } from "@/types/wine"
-import type { ReviewFormData } from "@/types/review"
+import { searchLocalWines } from "../services/wineLocalService"
+import { searchAllWines, saveCustomWine } from "../services/reviewService"
+import type { WineInfoLocal } from "../types/wine"
+import { CATEGORY_LABELS, CATEGORY_COLORS, WINE_AREA } from "../types/wine"
+import PageHeader from "../components/PageHeader"
 
-const INITIAL_FORM_DATA: ReviewFormData = {
-  wineName: "",
-  wineRegion: "",
-  wineType: "Red",
-  wineAbv: 0,
-  vintage: new Date().getFullYear(),
-  rating: 3,
-  body: 3,
-  tannin: 3,
-  sweetness: 3,
-  acidity: 3,
-  comment: "",
-  tags: [],
+interface WineSearchPageProps {
+  onBack: () => void
+  onSelectWine: (wine: WineInfoLocal) => void
+  onManualRegister: (
+    name: string,
+    origin: string,
+    type: string,
+    price: number,
+    abv: number,
+  ) => void
 }
 
-const WineSearchPage = () => {
-  const router = useRouter()
+const WineSearchPage = ({
+  onBack,
+  onSelectWine,
+  onManualRegister,
+}: WineSearchPageProps) => {
   const [searchTerm, setSearchTerm] = useState("")
   const [results, setResults] = useState<WineInfoLocal[]>([])
   const [isFocused, setIsFocused] = useState(false)
@@ -39,16 +39,21 @@ const WineSearchPage = () => {
   const [manualWineType, setManualWineType] = useState<string>("RED")
   const [isOriginSheetOpen, setIsOriginSheetOpen] = useState(false)
   const [isWineTypeSheetOpen, setIsWineTypeSheetOpen] = useState(false)
+  const [isSimilarSheetOpen, setIsSimilarSheetOpen] = useState(false)
+  const [similarWines, setSimilarWines] = useState<WineInfoLocal[]>([])
+  const [pendingManualWine, setPendingManualWine] =
+    useState<WineInfoLocal | null>(null)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const manualInputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // 페이지 진입 시 자동 포커스
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
 
-  // 실시간 검색 (debounce 300ms) - API Route 호출
+  // 실시간 검색 (debounce 300ms)
   useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
@@ -60,12 +65,9 @@ const WineSearchPage = () => {
       return
     }
 
-    debounceRef.current = setTimeout(async () => {
-      const res = await fetch(
-        `/api/wines/search?q=${encodeURIComponent(searchTerm)}`
-      )
-      const data: WineInfoLocal[] = await res.json()
-      setResults(data)
+    debounceRef.current = setTimeout(() => {
+      const searchResults = searchLocalWines(searchTerm)
+      setResults(searchResults)
       setHasSearched(true)
     }, 300)
 
@@ -81,44 +83,6 @@ const WineSearchPage = () => {
     setResults([])
     setHasSearched(false)
     inputRef.current?.focus()
-  }
-
-  const navigateToReview = (wine: WineInfoLocal) => {
-    const formData: ReviewFormData = {
-      ...INITIAL_FORM_DATA,
-      wineName: wine.WINE_NM_KR || wine.WINE_NM,
-      wineRegion: wine.WINE_AREA,
-      wineType: wine.WINE_CATEGORY === "WHITE"
-        ? "White"
-        : wine.WINE_CATEGORY === "CHAMP"
-        ? "Sparkling"
-        : "Red",
-      wineAbv: wine.WINE_ABV,
-    }
-    sessionStorage.setItem(
-      "reviewDraft",
-      JSON.stringify({ formData, selectedWine: wine })
-    )
-    router.push("/review/new")
-  }
-
-  const handleManualRegister = () => {
-    const formData: ReviewFormData = {
-      ...INITIAL_FORM_DATA,
-      wineName: manualWineName,
-      wineRegion: manualOrigin,
-      wineType: manualWineType === "WHITE"
-        ? "White"
-        : manualWineType === "CHAMP"
-        ? "Sparkling"
-        : "Red",
-      wineAbv: Number(manualAbv) || 0,
-    }
-    sessionStorage.setItem(
-      "reviewDraft",
-      JSON.stringify({ formData, selectedWine: null })
-    )
-    router.push("/review/new")
   }
 
   return (
@@ -157,36 +121,7 @@ const WineSearchPage = () => {
       </style>
 
       {/* Header */}
-      <header style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-        <button
-          onClick={() => router.back()}
-          style={{
-            background: "none",
-            border: "none",
-            padding: "8px",
-            cursor: "pointer",
-            marginLeft: "-8px",
-            transition: "opacity 0.2s",
-          }}
-          onMouseOver={(e) => (e.currentTarget.style.opacity = "0.6")}
-          onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M15 18L9 12L15 6"
-              stroke="#191F28"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-        <Text
-          style={{ fontSize: "20px", fontWeight: "bold", color: "#191f28" }}
-        >
-          와인 검색
-        </Text>
-      </header>
+      <PageHeader title="와인 검색" onBack={onBack} />
 
       {!isManualEntry && (
         <div style={{ position: "relative" }}>
@@ -377,16 +312,36 @@ const WineSearchPage = () => {
             </div>
 
             <button
-              onClick={handleManualRegister}
+              onClick={async () => {
+                const wine: WineInfoLocal = {
+                  WINE_ID: Date.now(),
+                  WINE_NM: manualWineName,
+                  WINE_NM_KR: manualWineName,
+                  WINE_AREA: manualOrigin,
+                  WINE_CATEGORY: manualWineType,
+                  WINE_ABV: Number(manualAbv) || 0,
+                  WINE_PRC: Number(manualPrice) || 0,
+                }
+                const found = await searchAllWines(manualWineName, 4)
+                if (found.length > 0) {
+                  setSimilarWines(found)
+                  setPendingManualWine(wine)
+                  setIsSimilarSheetOpen(true)
+                } else {
+                  await saveCustomWine(wine)
+                  if (onSelectWine) onSelectWine(wine)
+                }
+              }}
+              disabled={!manualWineName.trim()}
               style={{
                 padding: "16px",
                 borderRadius: "14px",
                 border: "none",
-                backgroundColor: "#3182f6",
+                backgroundColor: manualWineName.trim() ? "#3182f6" : "#e5e8eb",
                 color: "#ffffff",
                 fontSize: "16px",
                 fontWeight: "600",
-                cursor: "pointer",
+                cursor: manualWineName.trim() ? "pointer" : "not-allowed",
                 transition: "all 0.2s ease",
               }}
             >
@@ -439,9 +394,106 @@ const WineSearchPage = () => {
                   ([value, name]) => ({
                     name,
                     value,
-                  })
+                  }),
                 )}
               />
+            </BottomSheet>
+
+            {/* 유사 와인 확인 BottomSheet */}
+            <BottomSheet
+              open={isSimilarSheetOpen}
+              onClose={() => setIsSimilarSheetOpen(false)}
+              header={
+                <BottomSheet.Header>혹시 이 와인인가요?</BottomSheet.Header>
+              }
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  padding: "8px 0 16px",
+                }}
+              >
+                {similarWines.map((wine) => {
+                  const c = CATEGORY_COLORS[
+                    wine.WINE_CATEGORY as keyof typeof CATEGORY_COLORS
+                  ] ?? { bg: "#f2f4f6", text: "#4e5968" }
+                  return (
+                    <button
+                      key={wine.WINE_ID}
+                      onClick={() => {
+                        setIsSimilarSheetOpen(false)
+                        if (onSelectWine) onSelectWine(wine)
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "14px 16px",
+                        borderRadius: "12px",
+                        border: "1.5px solid #f2f4f6",
+                        backgroundColor: "#ffffff",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        gap: "10px",
+                      }}
+                    >
+                      <div style={{ flex: 1 }}>
+                        <Text
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            color: "#191f28",
+                            display: "block",
+                          }}
+                        >
+                          {wine.WINE_NM_KR || wine.WINE_NM}
+                        </Text>
+                        <Text style={{ fontSize: "12px", color: "#8b95a1" }}>
+                          {wine.WINE_AREA}
+                        </Text>
+                      </div>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          padding: "2px 8px",
+                          borderRadius: "6px",
+                          backgroundColor: c.bg,
+                          color: c.text,
+                          fontWeight: "700",
+                        }}
+                      >
+                        {CATEGORY_LABELS[
+                          wine.WINE_CATEGORY as keyof typeof CATEGORY_LABELS
+                        ] ?? wine.WINE_CATEGORY}
+                      </span>
+                    </button>
+                  )
+                })}
+                <button
+                  onClick={async () => {
+                    setIsSimilarSheetOpen(false)
+                    if (pendingManualWine) {
+                      await saveCustomWine(pendingManualWine)
+                      onSelectWine(pendingManualWine)
+                    }
+                  }}
+                  style={{
+                    marginTop: "4px",
+                    padding: "14px",
+                    borderRadius: "12px",
+                    border: "none",
+                    backgroundColor: "#f2f4f6",
+                    color: "#4e5968",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                  }}
+                >
+                  아니요, 새로 등록할게요
+                </button>
+              </div>
             </BottomSheet>
           </div>
         ) : results.length > 0 ? (
@@ -466,7 +518,7 @@ const WineSearchPage = () => {
                 <div
                   key={wine.WINE_ID}
                   className="wine-item"
-                  onClick={() => navigateToReview(wine)}
+                  onClick={() => onSelectWine && onSelectWine(wine)}
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -604,6 +656,16 @@ const WineSearchPage = () => {
                 cursor: "pointer",
                 transition: "all 0.2s ease",
                 boxShadow: "0 4px 12px rgba(49, 130, 246, 0.3)",
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = "scale(1.03)"
+                e.currentTarget.style.boxShadow =
+                  "0 6px 16px rgba(49, 130, 246, 0.4)"
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = "scale(1)"
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(49, 130, 246, 0.3)"
               }}
             >
               직접 등록

@@ -63,47 +63,11 @@ const ReviewStep2Page = ({
       }}
     >
       {/* 상단 네비게이션 */}
-      <div
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-          display: "flex",
-          alignItems: "center",
-          padding: "16px 20px",
-          backgroundColor: "rgba(249, 250, 251, 0.85)",
-          backdropFilter: "blur(12px)",
-          borderBottom: "1px solid #f2f4f6",
-        }}
-      >
-        <button
-          onClick={onBack}
-          style={{
-            background: "none",
-            border: "none",
-            fontSize: "24px",
-            cursor: "pointer",
-            padding: "4px",
-            display: "flex",
-            alignItems: "center",
-            color: "#191f28",
-          }}
-        >
-          ←
-        </button>
-        <Text
-          style={{
-            flex: 1,
-            textAlign: "center",
-            fontSize: "17px",
-            fontWeight: "bold",
-            color: "#191f28",
-            marginRight: "32px",
-          }}
-        >
-          맛과 생각 기록 (2/3)
-        </Text>
-      </div>
+      <PageHeader
+        title="맛과 생각 기록 (2/3)"
+        onBack={onBack}
+        backgroundColor="rgba(249, 250, 251, 0.85)"
+      />
       <div style={{ display: "flex", gap: "30px", flexDirection: "column" }}>
         {/* 선택한 와인 정보 간략 표시 */}
         <div>

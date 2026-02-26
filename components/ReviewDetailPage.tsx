@@ -1,10 +1,11 @@
-"use client"
-
-import { useState } from "react"
 import { Text } from "@toss/tds-mobile"
-import { useRouter } from "next/navigation"
-import type { ReviewItem, CommentItem } from "@/types/review"
-import { submitComment } from "@/services/reviewService"
+import type { ReviewItem } from "../types/review"
+import PageHeader from "../components/PageHeader"
+
+/**
+ * 리뷰 상세 페이지
+ * 선택한 리뷰의 전체 정보를 확인할 수 있습니다.
+ */
 
 const TAG_EMOJI_MAP: Record<string, string> = {
   Cherry: "🍒",
@@ -91,85 +92,34 @@ const CharacteristicBar = ({
   </div>
 )
 
-interface ReviewDetailPageProps {
-  review: ReviewItem
-  initialComments?: CommentItem[]
-}
-
 const ReviewDetailPage = ({
   review,
-  initialComments = [],
-}: ReviewDetailPageProps) => {
-  const router = useRouter()
-  const [comments, setComments] = useState<CommentItem[]>(initialComments)
-  const [nickname, setNickname] = useState("")
-  const [commentText, setCommentText] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const handleSubmitComment = async () => {
-    if (!commentText.trim() || !nickname.trim()) return
-    if (isSubmitting) return
-    setIsSubmitting(true)
-
-    const AVATAR_EMOJIS = [
-      "🍷",
-      "🥂",
-      "🍇",
-      "🍾",
-      "🫧",
-      "🌿",
-      "🍒",
-      "🍊",
-      "🌸",
-      "💜",
-    ]
-    const avatarEmoji =
-      AVATAR_EMOJIS[Math.floor(Math.random() * AVATAR_EMOJIS.length)]
-
-    // 낙관적 업데이트: 로컬에 먼저 추가
-    const optimisticComment: CommentItem = {
-      id: `temp-${Date.now()}`,
-      reviewId: review.id,
-      nickname: nickname.trim(),
-      avatarEmoji,
-      content: commentText.trim(),
-      createdAt: new Date().toISOString().slice(0, 16).replace("T", " "),
-    }
-
-    setComments((prev) => [...prev, optimisticComment])
-    setCommentText("")
-
-    try {
-      await submitComment(review.id, nickname.trim(), commentText.trim())
-    } catch {
-      // Supabase 미설정 시에도 로컬 낙관적 업데이트는 유지
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
+  onBack,
+}: {
+  review: ReviewItem
+  onBack: () => void
+}) => {
   return (
     <div
       style={{
         backgroundColor: "#f9fafb",
         minHeight: "100vh",
         fontFamily: "Pretendard, -apple-system, sans-serif",
-        paddingBottom: "100px",
       }}
     >
+      {/* 공통 헤더 */}
+      <PageHeader title="리뷰 상세" onBack={onBack} />
+
       {/* 상단 이미지 히어로 섹션 */}
       <div
         style={{
           position: "relative",
-          height: "320px",
+          height: "280px",
           overflow: "hidden",
         }}
       >
         <img
-          src={
-            review.imageUrl ||
-            "https://images.unsplash.com/photo-1510850477530-ce740d041d6a?auto=format&fit=crop&q=80&w=400"
-          }
+          src={review.imageUrl}
           alt={review.wineName}
           style={{
             width: "100%",
@@ -190,31 +140,6 @@ const ReviewDetailPage = ({
               "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 50%, rgba(0,0,0,0.65) 100%)",
           }}
         />
-
-        {/* 뒤로가기 버튼 */}
-        <button
-          onClick={() => router.back()}
-          style={{
-            position: "absolute",
-            top: "16px",
-            left: "16px",
-            background: "rgba(255,255,255,0.2)",
-            backdropFilter: "blur(10px)",
-            border: "none",
-            borderRadius: "50%",
-            width: "40px",
-            height: "40px",
-            fontSize: "20px",
-            cursor: "pointer",
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "background 0.2s ease",
-          }}
-        >
-          ←
-        </button>
 
         {/* 와인 기본 정보 */}
         <div
@@ -462,249 +387,6 @@ const ReviewDetailPage = ({
           >
             {review.comment}
           </Text>
-        </div>
-
-        {/* ─── 댓글 영역 ─── */}
-        <div
-          id="comments-section"
-          style={{
-            backgroundColor: "#fff",
-            borderRadius: "16px",
-            padding: "24px",
-            marginBottom: "16px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-          }}
-        >
-          {/* 댓글 헤더 */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "20px",
-            }}
-          >
-            <Text
-              style={{
-                fontSize: "17px",
-                fontWeight: "bold",
-                color: "#191f28",
-              }}
-            >
-              💬 댓글
-            </Text>
-            <Text
-              style={{
-                fontSize: "13px",
-                color: "#8b95a1",
-                fontWeight: 500,
-              }}
-            >
-              {comments.length}개
-            </Text>
-          </div>
-
-          {/* 댓글 목록 */}
-          {comments.length === 0 ? (
-            <div
-              style={{
-                textAlign: "center",
-                padding: "32px 0",
-              }}
-            >
-              <div style={{ fontSize: "32px", marginBottom: "12px" }}>🍷</div>
-              <Text
-                style={{
-                  fontSize: "14px",
-                  color: "#adb5bd",
-                  lineHeight: "1.6",
-                }}
-              >
-                아직 댓글이 없어요.
-                <br />첫 번째 댓글을 남겨보세요!
-              </Text>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
-              {comments.map((comment, index) => (
-                <div
-                  key={comment.id}
-                  style={{
-                    padding: "16px 0",
-                    borderTop: index === 0 ? "none" : "1px solid #f2f4f6",
-                    animation: "fadeIn 0.3s ease",
-                  }}
-                >
-                  {/* 댓글 상단: 아바타 + 닉네임 + 시간 */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        backgroundColor: "#f2f4f6",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "16px",
-                        flexShrink: 0,
-                      }}
-                    >
-                      {comment.avatarEmoji}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <Text
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: 600,
-                          color: "#191f28",
-                          display: "block",
-                        }}
-                      >
-                        {comment.nickname}
-                      </Text>
-                    </div>
-                    <Text
-                      style={{
-                        fontSize: "12px",
-                        color: "#adb5bd",
-                        flexShrink: 0,
-                      }}
-                    >
-                      {comment.createdAt}
-                    </Text>
-                  </div>
-                  {/* 댓글 본문 */}
-                  <Text
-                    style={{
-                      fontSize: "14px",
-                      lineHeight: "1.6",
-                      color: "#4e5968",
-                      paddingLeft: "42px",
-                      whiteSpace: "pre-wrap",
-                      wordBreak: "break-word",
-                    }}
-                  >
-                    {comment.content}
-                  </Text>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ─── 하단 고정 댓글 입력 영역 ─── */}
-      <div
-        id="comment-input-bar"
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: "#fff",
-          borderTop: "1px solid #f2f4f6",
-          padding: "12px 16px",
-          paddingBottom: "calc(12px + env(safe-area-inset-bottom))",
-          zIndex: 100,
-          boxShadow: "0 -2px 12px rgba(0,0,0,0.04)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            gap: "8px",
-            alignItems: "flex-end",
-            maxWidth: "800px",
-            margin: "0 auto",
-          }}
-        >
-          {/* 닉네임 입력 */}
-          <input
-            id="comment-nickname-input"
-            type="text"
-            placeholder="닉네임"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            maxLength={10}
-            style={{
-              width: "80px",
-              flexShrink: 0,
-              padding: "10px 12px",
-              borderRadius: "12px",
-              border: "1px solid #e5e8eb",
-              backgroundColor: "#f9fafb",
-              fontSize: "14px",
-              color: "#191f28",
-              outline: "none",
-              transition: "border-color 0.2s",
-              fontFamily: "inherit",
-            }}
-            onFocus={(e) => (e.target.style.borderColor = "#3182f6")}
-            onBlur={(e) => (e.target.style.borderColor = "#e5e8eb")}
-          />
-          {/* 댓글 내용 입력 */}
-          <input
-            id="comment-content-input"
-            type="text"
-            placeholder="댓글을 입력하세요..."
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-                e.preventDefault()
-                handleSubmitComment()
-              }
-            }}
-            style={{
-              flex: 1,
-              padding: "10px 14px",
-              borderRadius: "12px",
-              border: "1px solid #e5e8eb",
-              backgroundColor: "#f9fafb",
-              fontSize: "14px",
-              color: "#191f28",
-              outline: "none",
-              transition: "border-color 0.2s",
-              fontFamily: "inherit",
-            }}
-            onFocus={(e) => (e.target.style.borderColor = "#3182f6")}
-            onBlur={(e) => (e.target.style.borderColor = "#e5e8eb")}
-          />
-          {/* 전송 버튼 */}
-          <button
-            id="comment-submit-button"
-            onClick={handleSubmitComment}
-            disabled={!commentText.trim() || !nickname.trim() || isSubmitting}
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "12px",
-              border: "none",
-              backgroundColor:
-                commentText.trim() && nickname.trim() ? "#3182f6" : "#e5e8eb",
-              color: "#fff",
-              fontSize: "18px",
-              cursor:
-                commentText.trim() && nickname.trim()
-                  ? "pointer"
-                  : "not-allowed",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              transition: "all 0.2s ease",
-            }}
-          >
-            {isSubmitting ? "···" : "↑"}
-          </button>
         </div>
       </div>
     </div>

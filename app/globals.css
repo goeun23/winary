@@ -22,6 +22,36 @@ body {
   color-scheme: light;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* TDS Adaptive Colors */
+  --adaptiveGrey50: #f9fafb;
+  --adaptiveGrey100: #f2f4f6;
+  --adaptiveGrey200: #e5e8eb;
+  --adaptiveGrey300: #d1d6db;
+  --adaptiveGrey400: #b0b8c1;
+  --adaptiveGrey500: #8b95a1;
+  --adaptiveGrey600: #6b7684;
+  --adaptiveGrey700: #4e5968;
+  --adaptiveGrey800: #333d4b;
+  --adaptiveGrey900: #191f28;
+  --adaptiveGreyBackground: #f2f4f6;
+  --adaptiveBackground: #ffffff;
+  --adaptiveLayeredBackground: #ffffff;
+  --adaptiveFloatBackground: #ffffff;
+  --adaptiveDimmedBackground: rgba(0, 0, 0, 0.4);
+  --adaptiveHairlineBorder: #e5e8eb;
+
+  /* Blue Colors */
+  --adaptiveBlue50: #e8f3ff;
+  --adaptiveBlue100: #c9e2ff;
+  --adaptiveBlue200: #90c2ff;
+  --adaptiveBlue300: #64a8ff;
+  --adaptiveBlue400: #4593fc;
+  --adaptiveBlue500: #3182f6;
+  --adaptiveBlue600: #2272eb;
+  --adaptiveBlue700: #1b64da;
+  --adaptiveBlue800: #1957c2;
+  --adaptiveBlue900: #194aa6;
 }
 
 a {

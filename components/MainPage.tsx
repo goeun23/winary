@@ -13,6 +13,18 @@ import { adaptive } from "@toss/tds-colors"
 import { useRouter } from "next/navigation"
 import type { ReviewItem } from "@/types/review"
 import type { MainHeaderInfo } from "@/types/main"
+import {
+  WINE_CATEGORY_CONFIG,
+  WINE_TYPE_MAP,
+  type WineCategory,
+} from "@/types/wine"
+
+const TYPE_ICON = Object.fromEntries(
+  Object.entries(WINE_CATEGORY_CONFIG).map(([key, config]) => [
+    key,
+    config.icon,
+  ]),
+) as Record<string, string>
 
 const animationVideo = "/animation.webm"
 const bottleImage1 = "/bottle1.png"
@@ -27,10 +39,40 @@ const HEADER_DATA: MainHeaderInfo = {
 
 interface MainPageProps {
   reviews: ReviewItem[]
+  onNavigateSearch?: () => void
+  onNavigateReviewCreate?: () => void
+  onNavigateReviewDetail?: (reviewId: string) => void
+  onNavigateWineList?: () => void
 }
 
-const MainPage = ({ reviews }: MainPageProps) => {
+const MainPage = ({
+  reviews,
+  onNavigateSearch,
+  onNavigateReviewCreate,
+  onNavigateReviewDetail,
+  onNavigateWineList,
+}: MainPageProps) => {
   const router = useRouter()
+
+  const handleSearchClick = () => {
+    if (onNavigateSearch) onNavigateSearch()
+    else router.push("/search")
+  }
+
+  const handleReviewCreateClick = () => {
+    if (onNavigateReviewCreate) onNavigateReviewCreate()
+    else router.push("/search")
+  }
+
+  const handleReviewDetailClick = (reviewId: string) => {
+    if (onNavigateReviewDetail) onNavigateReviewDetail(reviewId)
+    else router.push(`/reviews/${reviewId}`)
+  }
+
+  const handleWineListClick = () => {
+    if (onNavigateWineList) onNavigateWineList()
+    else router.push("/wine-list")
+  }
 
   return (
     <div style={{ display: "flex", gap: "30px", flexDirection: "column" }}>
@@ -58,7 +100,7 @@ const MainPage = ({ reviews }: MainPageProps) => {
             </Top.TitleParagraph>
           }
           lower={
-            <Top.LowerButton onClick={() => router.push("/search")}>
+            <Top.LowerButton onClick={handleReviewCreateClick}>
               리뷰 등록
             </Top.LowerButton>
           }
@@ -172,15 +214,34 @@ const MainPage = ({ reviews }: MainPageProps) => {
           {reviews.map((review) => (
             <ListRow
               key={review.id}
-              onClick={() => router.push(`/reviews/${review.id}`)}
+              onClick={() => handleReviewDetailClick(review.id)}
               left={
-                <ListRow.AssetImage
-                  src="https://static.toss.im/3d-common/u1F3AB-new-gold.png"
-                  shape="circle"
-                  scale={0.66}
-                  size="xsmall"
-                  backgroundColor={adaptive.grey100}
-                />
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    backgroundColor: adaptive.grey100,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                    padding: "4px",
+                  }}
+                >
+                  <img
+                    src={
+                      TYPE_ICON[WINE_TYPE_MAP[review.wineType] || "RED"] ||
+                      "/images/red.png"
+                    }
+                    alt={review.wineType}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
               }
               contents={
                 <ListRow.Texts
@@ -194,10 +255,7 @@ const MainPage = ({ reviews }: MainPageProps) => {
           ))}
         </div>
 
-        <ListFooter
-          onClick={() => router.push("/wine-list")}
-          style={{ cursor: "pointer" }}
-        >
+        <ListFooter onClick={handleWineListClick} style={{ cursor: "pointer" }}>
           더 보기
         </ListFooter>
       </div>
