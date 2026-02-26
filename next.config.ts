@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  transpilePackages: [
+    "@toss/tds-mobile",
+    "@toss/tds-mobile-ait",
+    "@toss/tds-colors",
+  ],
 };
 
 export default nextConfig;

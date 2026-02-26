@@ -1,0 +1,50 @@
+/**
+ * 저장된 리뷰 항목을 정의하는 인터페이스입니다.
+ * 리뷰 목록(최근 리뷰)과 상세 페이지에서 공통으로 사용합니다.
+ */
+export interface ReviewItem {
+  id: string
+  wineName: string
+  wineRegion: string
+  wineType: "Red" | "White" | "Rosé" | "Sparkling"
+  vintage: number
+  rating: number
+  body: number
+  tannin: number
+  sweetness: number
+  acidity: number
+  comment: string
+  tags: string[]
+  imageUrl: string
+  createdAt: string
+}
+
+/**
+ * 리뷰 댓글 항목을 정의하는 인터페이스입니다.
+ */
+export interface CommentItem {
+  id: string
+  reviewId: string
+  nickname: string
+  avatarEmoji: string
+  content: string
+  createdAt: string
+}
+
+/**
+ * 리뷰 등록 시 사용하는 폼 데이터 인터페이스
+ */
+export interface ReviewFormData {
+  wineName: string
+  wineRegion: string
+  wineType: "Red" | "White" | "Rosé" | "Sparkling"
+  wineAbv: number
+  vintage: number
+  rating: number
+  body: number
+  tannin: number
+  sweetness: number
+  acidity: number
+  comment: string
+  tags: string[]
+}
