@@ -6,40 +6,22 @@ import {
   ListFooter,
   ListHeader,
   ListRow,
-  Text,
+  Rating,
   Top,
 } from "@toss/tds-mobile"
 import { adaptive } from "@toss/tds-colors"
 import { useRouter } from "next/navigation"
 import type { ReviewItem } from "@/types/review"
-import type { MainHeaderInfo } from "@/types/main"
-import {
-  WINE_CATEGORY_CONFIG,
-  WINE_TYPE_MAP,
-  type WineCategory,
-} from "@/types/wine"
-import PageLayout from "@/components/PageLayout"
-
-const TYPE_ICON = Object.fromEntries(
-  Object.entries(WINE_CATEGORY_CONFIG).map(([key, config]) => [
-    key,
-    config.icon,
-  ]),
-) as Record<string, string>
+import { type WineInfoLocal } from "@/types/wine"
+import { useState, useEffect } from "react"
+import DailyRecommendWines from "./Home/DailyRecommendWines"
+import WineIcon from "@/components/common/WineIcon"
 
 const animationVideo = "/animation.webm"
-const bottleImage1 = "/bottle1.png"
-const bottleImage2 = "/bottle2.png"
-
-const HEADER_DATA: MainHeaderInfo = {
-  emoji: "🍷",
-  subTitle: "나만의 와인 저장고",
-  mainTitle: "오늘 마신 와인 기록할까요?",
-  description: "취향에 딱 맞는 와인을 함께 찾아드릴게요.",
-}
 
 interface HomeViewProps {
   reviews: ReviewItem[]
+  recommendedWines: WineInfoLocal[]
   onNavigateSearch?: () => void
   onNavigateReviewCreate?: () => void
   onNavigateReviewDetail?: (reviewId: string) => void
@@ -48,12 +30,18 @@ interface HomeViewProps {
 
 const HomeView = ({
   reviews,
+  recommendedWines,
   onNavigateSearch,
   onNavigateReviewCreate,
   onNavigateReviewDetail,
   onNavigateWineList,
 }: HomeViewProps) => {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleSearchClick = () => {
     if (onNavigateSearch) onNavigateSearch()
@@ -65,9 +53,9 @@ const HomeView = ({
     else router.push("/wines/search")
   }
 
-  const handleReviewDetailClick = (reviewId: string) => {
-    if (onNavigateReviewDetail) onNavigateReviewDetail(reviewId)
-    else router.push(`/reviews/${reviewId}`)
+  const handleWineDetailClick = (wineId: number | string) => {
+    if (onNavigateReviewDetail) onNavigateReviewDetail(String(wineId))
+    else router.push(`/wines/${wineId}`)
   }
 
   const handleWineListClick = () => {
@@ -77,13 +65,25 @@ const HomeView = ({
 
   return (
     <div style={{ display: "flex", gap: "30px", flexDirection: "column" }}>
-      <div id="top-main-container">
-        <Top
-          upperGap={0}
-          lowerGap={0}
-          upper={
-            <Top.UpperAssetContent
-              content={
+      <div
+        id="top-main-container"
+        style={{ padding: "0 20px", marginTop: "20px" }}
+      >
+        <div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
+            <Top.TitleParagraph fontWeight="bold" size={28} typography="st2">
+              와인 리뷰를 <br />
+              등록해주세요
+            </Top.TitleParagraph>
+
+            <div style={{ width: "100px", height: "100px" }}>
+              {mounted ? (
                 <Asset.Video
                   frameShape={{
                     height: 100,
@@ -92,20 +92,31 @@ const HomeView = ({
                   as="video"
                   src={animationVideo}
                 />
-              }
-            />
-          }
-          title={
-            <Top.TitleParagraph size={28} typography="t7">
-              오늘 마신 와인 기록할까요?
-            </Top.TitleParagraph>
-          }
-          lower={
-            <Top.LowerButton onClick={handleReviewCreateClick}>
-              리뷰 등록
-            </Top.LowerButton>
-          }
-        />
+              ) : (
+                <div style={{ height: 100, width: 100 }} />
+              )}
+            </div>
+          </div>
+
+          <div style={{ marginTop: "24px" }}>
+            <button
+              onClick={handleReviewCreateClick}
+              style={{
+                width: "100%",
+                padding: "16px",
+                backgroundColor: "#3182f6",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "16px",
+                fontSize: "16px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              와인 찾기
+            </button>
+          </div>
+        </div>
       </div>
 
       <div id="daily-recommend-section">
@@ -113,85 +124,20 @@ const HomeView = ({
         <ListHeader
           title={
             <ListHeader.TitleParagraph
-              typography="t7"
+              typography="t5"
               color={adaptive.grey800}
               fontWeight="bold"
             >
-              오늘의 추천 와인
+              오늘은 이 와인을 추천드려요
             </ListHeader.TitleParagraph>
           }
           rightAlignment="center"
-          descriptionPosition="bottom"
         />
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "12px",
-            padding: "0 20px",
-          }}
-        >
-          {[
-            { src: bottleImage1, label: "모스카토 다스티", label2: "호주" },
-            { src: bottleImage2, label: "스톤베이", label2: "뉴질랜드" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              style={{
-                backgroundColor: "#f2f4f6",
-                borderRadius: "16px",
-                overflow: "hidden",
-                cursor: "pointer",
-                transition: "transform 0.2s ease",
-              }}
-            >
-              <div
-                style={{
-                  width: "100%",
-                  aspectRatio: "1 / 1",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "16px",
-                }}
-              >
-                <img
-                  src={item.src}
-                  alt={item.label}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                    borderRadius: "14px",
-                  }}
-                />
-              </div>
-              <div style={{ padding: "0 14px 14px 14px" }}>
-                <div>
-                  <Text
-                    style={{
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      color: adaptive.grey800,
-                    }}
-                  >
-                    {item.label2}
-                  </Text>
-                </div>
-                <Text
-                  style={{
-                    fontSize: "15px",
-                    fontWeight: 600,
-                    color: "#191f28",
-                  }}
-                >
-                  {item.label}
-                </Text>
-              </div>
-            </div>
-          ))}
-        </div>
+        <DailyRecommendWines
+          recommendedWines={recommendedWines}
+          handleWineDetailClick={handleWineDetailClick}
+        />
       </div>
 
       <div style={{ display: "flex", gap: "10px", flexDirection: "column" }}>
@@ -200,55 +146,42 @@ const HomeView = ({
         <ListHeader
           title={
             <ListHeader.TitleParagraph
-              typography="t7"
+              typography="t5"
               color={adaptive.grey800}
               fontWeight="bold"
             >
-              최근 리뷰
+              최근 등록된 리뷰
             </ListHeader.TitleParagraph>
           }
+          description={
+            <ListHeader.DescriptionParagraph>
+              다른 사람들의 생생한 후기를 확인해보세요
+            </ListHeader.DescriptionParagraph>
+          }
           rightAlignment="center"
-          descriptionPosition="bottom"
         />
 
         <div id="recent-review-row">
           {reviews.map((review) => (
             <ListRow
               key={review.id}
-              onClick={() => handleReviewDetailClick(review.id)}
-              left={
-                <div
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    backgroundColor: adaptive.grey100,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                    padding: "4px",
-                  }}
-                >
-                  <img
-                    src={
-                      TYPE_ICON[WINE_TYPE_MAP[review.wineType] || "RED"] ||
-                      "/images/red.png"
-                    }
-                    alt={review.wineType}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
-                  />
-                </div>
-              }
+              onClick={() => handleWineDetailClick(review.wineId)}
+              left={<WineIcon wineType={review.wineType} />}
               contents={
                 <ListRow.Texts
                   type="2RowTypeA"
                   top={review.wineName}
-                  bottom={review.wineRegion}
+                  bottom={review.nickname}
+                />
+              }
+              right={
+                <Rating
+                  readOnly={true}
+                  value={review.rating}
+                  max={5}
+                  size="medium"
+                  variant="compact"
+                  aria-label="별점 평가"
                 />
               }
               withArrow={true}

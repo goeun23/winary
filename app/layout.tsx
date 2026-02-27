@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body>
+      <body suppressHydrationWarning>
         <TossThemeProvider>{children}</TossThemeProvider>
       </body>
     </html>

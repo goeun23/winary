@@ -56,6 +56,26 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["review_tokens"]["Row"]>
         Relationships: []
       }
+      wine_overrides: {
+        Row: {
+          wine_id: number
+          wine_nm: string | null
+          wine_nm_kr: string | null
+          wine_area: string | null
+          wine_category: string | null
+          wine_abv: number | null
+          wine_prc: number | null
+          updated_at: string
+        }
+        Insert: Omit<
+          Database["public"]["Tables"]["wine_overrides"]["Row"],
+          "updated_at"
+        > & {
+          updated_at?: string
+        }
+        Update: Partial<Database["public"]["Tables"]["wine_overrides"]["Insert"]>
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

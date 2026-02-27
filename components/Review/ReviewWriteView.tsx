@@ -1,7 +1,4 @@
-import { createClient } from "@/supabase/server"
-import { toReviewItem, type ReviewRow } from "@/types/supabase"
 import { adaptive } from "@toss/tds-colors"
-import { MOCK_REVIEWS, MOCK_COMMENTS } from "@/data/mockReviews"
 
 import { useState, useMemo } from "react"
 import {
@@ -15,7 +12,6 @@ import {
 } from "@toss/tds-mobile"
 import PageLayout from "@/components/PageLayout"
 
-import { join } from "path"
 import type { WineInfoLocal } from "@/types/wine"
 import type { LocalReview } from "@/types/review"
 import { CATEGORY_LABELS } from "@/types/wine"
@@ -138,10 +134,7 @@ const ReviewWriteView = ({
   }
 
   return (
-    <PageLayout
-      title={isEditMode ? "리뷰 수정" : "맛과 생각 기록"}
-      onBack={onBack}
-    >
+    <PageLayout title={isEditMode ? "리뷰 수정" : "리뷰 등록"} onBack={onBack}>
       <div style={{ display: "flex", gap: "30px", flexDirection: "column" }}>
         {/* 선택한 와인 정보 */}
         <div>
@@ -200,7 +193,7 @@ const ReviewWriteView = ({
               color: "#191f28",
             }}
           >
-            오늘 마신 와인, 어땠어요?
+            총 평점
           </Text>
           <div
             style={{ display: "flex", gap: "8px", justifyContent: "center" }}

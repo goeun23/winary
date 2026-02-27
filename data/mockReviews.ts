@@ -8,6 +8,7 @@ import type { CommentItem } from "@/types/review"
 export const MOCK_REVIEWS: ReviewItem[] = [
   {
     id: "review-1",
+    wineId: 0,
     wineName: "맥윌리엄스 마운트 플레전트 와인스",
     wineRegion: "호주",
     wineType: "Red",
@@ -22,10 +23,12 @@ export const MOCK_REVIEWS: ReviewItem[] = [
     tags: ["Cherry", "Vanilla", "Oak"],
     imageUrl:
       "https://images.unsplash.com/photo-1510850477530-ce740d041d6a?auto=format&fit=crop&q=80&w=400",
+    nickname: "와이너리",
     createdAt: "2026-02-23",
   },
   {
     id: "review-2",
+    wineId: 0,
     wineName: "카파르조 BDM 라 까사 2019",
     wineRegion: "이탈리아",
     wineType: "Red",
@@ -40,10 +43,12 @@ export const MOCK_REVIEWS: ReviewItem[] = [
     tags: ["Cherry", "Leather", "Tobacco"],
     imageUrl:
       "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?auto=format&fit=crop&q=80&w=400",
+    nickname: "와이너리",
     createdAt: "2026-02-22",
   },
   {
     id: "review-3",
+    wineId: 0,
     wineName: "펜폴즈 베이비 그랜지",
     wineRegion: "바로사밸리",
     wineType: "Red",
@@ -58,64 +63,47 @@ export const MOCK_REVIEWS: ReviewItem[] = [
     tags: ["Blackberry", "Oak", "Vanilla"],
     imageUrl:
       "https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?auto=format&fit=crop&q=80&w=400",
+    nickname: "와이너리",
     createdAt: "2026-02-20",
   },
-]
-
-/**
- * 목(mock) 댓글 데이터
- * Supabase 연동 전 임시 사용 / 개발 폴백용
- */
-export const MOCK_COMMENTS: CommentItem[] = [
   {
-    id: "comment-1",
-    reviewId: "review-1",
-    nickname: "와인초보",
-    avatarEmoji: "🍷",
-    content:
-      "저도 이 와인 마셔봤는데 정말 맛있었어요! 스테이크 페어링 꿀팁 감사해요 😊",
-    createdAt: "2026-02-23 14:30",
+    id: "review-4",
+    wineId: 0,
+    wineName: "돈나푸가타 안씰리아",
+    wineRegion: "시칠리아",
+    wineType: "White",
+    vintage: 2022,
+    rating: 4,
+    body: 3,
+    tannin: 1,
+    sweetness: 2,
+    acidity: 4,
+    comment:
+      "상큼한 시트러스 향과 흰 꽃의 아로마가 일품이에요. 해산물 요리와 아주 잘 어울리는 깨끗하고 상쾌한 화이트 와인입니다.",
+    tags: ["Citrus", "White Flower", "Mineral"],
+    imageUrl:
+      "https://images.unsplash.com/photo-1559154661-bc4f954f9a0d?auto=format&fit=crop&q=80&w=400",
+    nickname: "와이너리",
+    createdAt: "2026-02-25",
   },
   {
-    id: "comment-2",
-    reviewId: "review-1",
-    nickname: "소믈리에지망생",
-    avatarEmoji: "🥂",
-    content:
-      "오크 숙성 느낌이 좋다니, 바로사밸리 시라즈도 한번 드셔보세요. 비슷한 느낌인데 좀 더 스파이시해요.",
-    createdAt: "2026-02-24 09:15",
-  },
-  {
-    id: "comment-3",
-    reviewId: "review-2",
-    nickname: "이탈리아덕후",
-    avatarEmoji: "🇮🇹",
-    content:
-      "브루넬로 디 몬탈치노 진짜 좋죠! 가격대가 있지만 그만한 값을 하는 것 같아요.",
-    createdAt: "2026-02-22 18:45",
-  },
-  {
-    id: "comment-4",
-    reviewId: "review-2",
-    nickname: "레드와인러버",
-    avatarEmoji: "❤️",
-    content: "5점 만점이라니 꼭 마셔봐야겠어요. 어디서 구매하셨나요?",
-    createdAt: "2026-02-23 11:20",
-  },
-  {
-    id: "comment-5",
-    reviewId: "review-2",
-    nickname: "와인메이트",
-    avatarEmoji: "🍇",
-    content: "가죽향이라니 흥미롭네요. 디캔팅은 얼마나 하셨나요?",
-    createdAt: "2026-02-24 16:00",
-  },
-  {
-    id: "comment-6",
-    reviewId: "review-3",
-    nickname: "가성비왕",
-    avatarEmoji: "💰",
-    content: "펜폴즈 베이비 그랜지 가성비 정말 좋죠! 저도 자주 사먹어요 👍",
-    createdAt: "2026-02-21 20:30",
+    id: "review-5",
+    wineId: 0,
+    wineName: "모엣 샹동 임페리얼",
+    wineRegion: "샹파뉴",
+    wineType: "Sparkling",
+    vintage: 0,
+    rating: 5,
+    body: 3,
+    tannin: 1,
+    sweetness: 2,
+    acidity: 5,
+    comment:
+      "역시 실망시키지 않는 품질. 고운 기포와 사과, 배의 상큼함, 그리고 구운 빵의 풍미가 조화로워요. 축하할 일이 있을 때 필수!",
+    tags: ["Apple", "Pear", "Brioche"],
+    imageUrl:
+      "https://images.unsplash.com/photo-1594498653385-d5172c532c00?auto=format&fit=crop&q=80&w=400",
+    nickname: "와이너리",
+    createdAt: "2026-02-24",
   },
 ]

@@ -3,17 +3,15 @@
 import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import WineSearchView from "@/components/Wine/WineSearchView"
-import ReviewTasteView from "@/components/Review/ReviewTasteView"
-import { TossThemeProvider as ThemeProvider } from "@/components/providers/TossThemeProvider"
-import WineDetailView from "@/components/Wine/WineDetailView"
 import ReviewWriteView from "@/components/Review/ReviewWriteView"
+import { Loader } from "@toss/tds-mobile"
 
 import {
   createReview,
   saveCustomWine,
   getWineById,
 } from "@/services/reviewService"
-import { MOCK_REVIEWS } from "@/data/mockReviews"
+
 import type { ReviewFormData, LocalReview } from "@/types/review"
 import type { WineInfoLocal } from "@/types/wine"
 
@@ -99,10 +97,6 @@ function ReviewNewContent() {
     } catch (err) {
       console.error("Manual register failed:", err)
     }
-  }
-
-  const handleUpdateFormData = (updates: Partial<ReviewFormData>) => {
-    setFormData((prev) => ({ ...prev, ...updates }))
   }
 
   const handleWriteReview = () => {
@@ -213,12 +207,18 @@ function ReviewNewContent() {
     }
   }
 
-  return <ThemeProvider>{renderPage()}</ThemeProvider>
+  return renderPage()
 }
 
 export default function ReviewNewPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div>
+          <Loader label={"정보를 불러오고있어요."} />
+        </div>
+      }
+    >
       <ReviewNewContent />
     </Suspense>
   )

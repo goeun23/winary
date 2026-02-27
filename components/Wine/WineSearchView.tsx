@@ -1,13 +1,27 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { Text, TextField, ListRow, BottomSheet, Button } from "@toss/tds-mobile"
+import {
+  Text,
+  TextField,
+  ListRow,
+  BottomSheet,
+  Button,
+  Asset,
+  Result,
+  ListHeader,
+} from "@toss/tds-mobile"
 import { adaptive } from "@toss/tds-colors"
-import { searchLocalWines } from "../../services/wineLocalService"
 import { searchAllWines, saveCustomWine } from "../../services/reviewService"
 import type { WineInfoLocal } from "../../types/wine"
-import { CATEGORY_LABELS, CATEGORY_COLORS, WINE_AREA } from "../../types/wine"
+import {
+  WINE_CATEGORY_CONFIG,
+  CATEGORY_LABELS,
+  WINE_AREA,
+  WineCategory,
+} from "../../types/wine"
 import PageLayout from "../PageLayout"
 import WineCardList from "../common/WineCardList"
+import WineTypeBadge from "../common/WineTypeBadge"
 
 interface WineSearchViewProps {
   onBack: () => void
@@ -21,16 +35,40 @@ interface WineSearchViewProps {
   ) => void
 }
 
+const SESSION_KEY = "wineSearchState"
+
+function loadSavedState() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    if (raw)
+      return JSON.parse(raw) as {
+        searchTerm: string
+        results: WineInfoLocal[]
+        displayCount: number
+      }
+  } catch {}
+  return null
+}
+
 const WineSearchView = ({
   onBack,
   onSelectWine,
   onManualRegister,
 }: WineSearchViewProps) => {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [results, setResults] = useState<WineInfoLocal[]>([])
-  const [displayCount, setDisplayCount] = useState(20) // number of items currently shown
+  // lazy init: 마운트 전에 sessionStorage에서 바로 복원
+  const [searchTerm, setSearchTerm] = useState<string>(
+    () => loadSavedState()?.searchTerm ?? "",
+  )
+  const [results, setResults] = useState<WineInfoLocal[]>(
+    () => loadSavedState()?.results ?? [],
+  )
+  const [displayCount, setDisplayCount] = useState<number>(
+    () => loadSavedState()?.displayCount ?? 20,
+  )
   const [isFocused, setIsFocused] = useState(false)
-  const [hasSearched, setHasSearched] = useState(false)
+  const [hasSearched, setHasSearched] = useState<boolean>(
+    () => !!loadSavedState()?.searchTerm,
+  )
   const [isManualEntry, setIsManualEntry] = useState(false)
 
   // 직접 입력 상태
@@ -38,7 +76,7 @@ const WineSearchView = ({
   const [manualOrigin, setManualOrigin] = useState("Italy")
   const [manualPrice, setManualPrice] = useState("")
   const [manualAbv, setManualAbv] = useState("")
-  const [manualWineType, setManualWineType] = useState<string>("RED")
+  const [manualWineType, setManualWineType] = useState<WineCategory>("RED")
   const [isOriginSheetOpen, setIsOriginSheetOpen] = useState(false)
   const [isWineTypeSheetOpen, setIsWineTypeSheetOpen] = useState(false)
   const [isSimilarSheetOpen, setIsSimilarSheetOpen] = useState(false)
@@ -50,21 +88,18 @@ const WineSearchView = ({
   const manualInputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // 페이지 진입 시 자동 포커스
-  // Load persisted state if available (to keep search term & results when navigating back)
+  // 검색어 복원 시 자동 포커스 (검색어 없을 때만)
   useEffect(() => {
-    const saved = sessionStorage.getItem("wineSearchState")
-    if (saved) {
-      try {
-        const { searchTerm: s, results: r, displayCount: d } = JSON.parse(saved)
-        setSearchTerm(s)
-        setResults(r)
-        setDisplayCount(d ?? 20)
-        if (s) setHasSearched(true)
-      } catch (_) {}
-    }
-    inputRef.current?.focus()
+    if (!searchTerm) inputRef.current?.focus()
   }, [])
+
+  // 검색 상태 sessionStorage에 저장 (뒤로가기 복원용)
+  useEffect(() => {
+    sessionStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({ searchTerm, results, displayCount }),
+    )
+  }, [searchTerm, results, displayCount])
 
   // 실시간 검색 (debounce 300ms)
   useEffect(() => {
@@ -79,8 +114,8 @@ const WineSearchView = ({
       return
     }
 
-    debounceRef.current = setTimeout(() => {
-      const searchResults = searchLocalWines(searchTerm)
+    debounceRef.current = setTimeout(async () => {
+      const searchResults = await searchAllWines(searchTerm, 20)
       setResults(searchResults)
       setHasSearched(true)
       setDisplayCount(20) // reset display count on new search
@@ -98,6 +133,7 @@ const WineSearchView = ({
     setResults([])
     setHasSearched(false)
     setDisplayCount(20)
+    sessionStorage.removeItem(SESSION_KEY)
     inputRef.current?.focus()
   }
 
@@ -273,7 +309,7 @@ const WineSearchView = ({
                     }}
                   >
                     <Text typography="t6" color={adaptive.grey600}>
-                      {manualWineType}
+                      {WINE_CATEGORY_CONFIG[manualWineType]?.label}
                     </Text>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                       <path
@@ -329,8 +365,8 @@ const WineSearchView = ({
                   setPendingManualWine(wine)
                   setIsSimilarSheetOpen(true)
                 } else {
-                  await saveCustomWine(wine)
-                  if (onSelectWine) onSelectWine(wine)
+                  const savedWine = await saveCustomWine(wine)
+                  if (onSelectWine) onSelectWine(savedWine)
                 }
               }}
               disabled={!manualWineName.trim()}
@@ -388,13 +424,13 @@ const WineSearchView = ({
               <BottomSheet.Select
                 value={manualWineType}
                 onChange={(e) => {
-                  setManualWineType(e.target.value)
+                  setManualWineType(e.target.value as WineCategory)
                   setIsWineTypeSheetOpen(false)
                 }}
                 options={Object.entries(CATEGORY_LABELS).map(
                   ([value, name]) => ({
                     name,
-                    value,
+                    value: value as WineCategory,
                   }),
                 )}
               />
@@ -417,9 +453,6 @@ const WineSearchView = ({
                 }}
               >
                 {similarWines.map((wine) => {
-                  const c = CATEGORY_COLORS[
-                    wine.WINE_CATEGORY as keyof typeof CATEGORY_COLORS
-                  ] ?? { bg: "#f2f4f6", text: "#4e5968" }
                   return (
                     <button
                       key={wine.WINE_ID}
@@ -455,20 +488,7 @@ const WineSearchView = ({
                           {wine.WINE_AREA}
                         </Text>
                       </div>
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          padding: "2px 8px",
-                          borderRadius: "6px",
-                          backgroundColor: c.bg,
-                          color: c.text,
-                          fontWeight: "700",
-                        }}
-                      >
-                        {CATEGORY_LABELS[
-                          wine.WINE_CATEGORY as keyof typeof CATEGORY_LABELS
-                        ] ?? wine.WINE_CATEGORY}
-                      </span>
+                      <WineTypeBadge wineType={wine.WINE_CATEGORY} />
                     </button>
                   )
                 })}
@@ -476,8 +496,8 @@ const WineSearchView = ({
                   onClick={async () => {
                     setIsSimilarSheetOpen(false)
                     if (pendingManualWine) {
-                      await saveCustomWine(pendingManualWine)
-                      onSelectWine(pendingManualWine)
+                      const savedWine = await saveCustomWine(pendingManualWine)
+                      onSelectWine(savedWine)
                     }
                   }}
                   style={{
@@ -499,16 +519,19 @@ const WineSearchView = ({
           </div>
         ) : results.length > 0 ? (
           <>
-            <Text
-              style={{
-                fontSize: "13px",
-                color: "#8b95a1",
-                marginBottom: "4px",
-              }}
-            >
-              검색 결과 {results.length}건
-            </Text>
-            <WineCardList results={results} />
+            <ListHeader
+              title={
+                <ListHeader.TitleParagraph
+                  typography="t5"
+                  color={adaptive.grey800}
+                  fontWeight="bold"
+                >
+                  검색 결과 {results.length}건
+                </ListHeader.TitleParagraph>
+              }
+              rightAlignment="center"
+            />
+            <WineCardList results={results} onSelectWine={onSelectWine} />
           </>
         ) : hasSearched && searchTerm ? (
           <div
@@ -522,55 +545,28 @@ const WineSearchView = ({
               gap: "20px",
             }}
           >
-            <div style={{ fontSize: "48px" }}>🔍</div>
             <div>
-              <Text
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  color: "#191f28",
-                  display: "block",
-                  marginBottom: "8px",
-                }}
-              >
-                검색 결과가 없어요
-              </Text>
-              <Text style={{ fontSize: "14px", color: "#8b95a1" }}>
-                다른 이름으로 검색하거나 직접 등록해 보세요
-              </Text>
+              <Result
+                figure={
+                  <Asset.Icon
+                    name="icn-info-line"
+                    frameShape={Asset.frameShape.CleanH24}
+                  />
+                }
+                title="검색 결과가 없어요"
+                button={
+                  <Button
+                    onClick={() => {
+                      setIsManualEntry(true)
+                      setManualWineName(searchTerm)
+                      setTimeout(() => manualInputRef.current?.focus(), 100)
+                    }}
+                  >
+                    직접 등록
+                  </Button>
+                }
+              />
             </div>
-            <button
-              onClick={() => {
-                setIsManualEntry(true)
-                setManualWineName(searchTerm)
-                setTimeout(() => manualInputRef.current?.focus(), 100)
-              }}
-              style={{
-                marginTop: "8px",
-                padding: "14px 32px",
-                borderRadius: "14px",
-                border: "none",
-                backgroundColor: "#3182f6",
-                color: "#ffffff",
-                fontSize: "15px",
-                fontWeight: "600",
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-                boxShadow: "0 4px 12px rgba(49, 130, 246, 0.3)",
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = "scale(1.03)"
-                e.currentTarget.style.boxShadow =
-                  "0 6px 16px rgba(49, 130, 246, 0.4)"
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = "scale(1)"
-                e.currentTarget.style.boxShadow =
-                  "0 4px 12px rgba(49, 130, 246, 0.3)"
-              }}
-            >
-              직접 등록
-            </button>
           </div>
         ) : (
           <div

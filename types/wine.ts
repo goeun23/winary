@@ -9,6 +9,7 @@ export interface WineInfoLocal {
   WINE_CATEGORY: string // 카테고리 (RED, WHITE, CHAMP, DESSERT 등)
   WINE_ABV: number // 알코올 도수
   WINE_PRC: number // 가격
+  reviewCount?: number // 리뷰 개수
 }
 
 /**
@@ -70,6 +71,7 @@ export const WINE_TYPE = {
   SPARKLING: "SPARKLING",
   ROSE: "ROSE",
   DESSERT: "DESSERT",
+  CHAMP: "CHAMP",
 } as const
 
 export type WineCategory = keyof typeof WINE_TYPE
@@ -82,45 +84,38 @@ export const WINE_CATEGORY_CONFIG: Record<
   {
     label: string
     color: string
-    bgColor: string
-    description: string
     icon: string
   }
 > = {
   [WINE_TYPE.RED]: {
     label: "레드",
     color: "#ff4d4f",
-    bgColor: "#fff1f0",
-    description: "포도 껍질과 함께 발효시킨 붉은 와인",
-    icon: "/images/red.png",
+    icon: "/images/RED_ICON.png",
   },
   [WINE_TYPE.WHITE]: {
     label: "화이트",
     color: "#d4a017",
-    bgColor: "#fffbe6",
-    description: "청포도로 만든 맑고 투명한 와인",
-    icon: "/images/white.png",
+    icon: "/images/WHITE_ICON.png",
   },
   [WINE_TYPE.SPARKLING]: {
     label: "스파클링",
     color: "#3182f6",
-    bgColor: "#e7f1ff",
-    description: "탄산이 포함된 청량한 와인 (샴페인 등)",
-    icon: "/images/sparkling.png",
+    icon: "/images/SPARKLING_ICON.png",
   },
   [WINE_TYPE.ROSE]: {
     label: "로제",
     color: "#e8899e",
-    bgColor: "#fff0f5",
-    description: "분홍빛을 띠는 로맨틱한 와인",
-    icon: "/images/rose.png",
+    icon: "/images/ROSE_ICON.png",
   },
   [WINE_TYPE.DESSERT]: {
     label: "디저트",
     color: "#9b59b6",
-    bgColor: "#faf0ff",
-    description: "당도가 높은 식후용 와인",
-    icon: "/images/dessert.png",
+    icon: "/images/ROSE_ICON.png",
+  },
+  [WINE_TYPE.CHAMP]: {
+    label: "샴페인",
+    color: "#9b59b6",
+    icon: "/images/CHAMP_ICON.png",
   },
 }
 
@@ -136,13 +131,6 @@ export const CATEGORY_LABELS = Object.fromEntries(
   ]),
 ) as Record<WineCategory, string>
 
-export const CATEGORY_COLORS = Object.fromEntries(
-  Object.entries(WINE_CATEGORY_CONFIG).map(([key, config]) => [
-    key,
-    { bg: config.bgColor, text: config.color },
-  ]),
-) as Record<WineCategory, { bg: string; text: string }>
-
 export const WINE_AREA = [
   "France",
   "Italy",
@@ -155,6 +143,7 @@ export const WINE_AREA = [
   "Germany",
   "New Zealand",
   "South Africa",
+  "Others",
 ] as const
 
 /**

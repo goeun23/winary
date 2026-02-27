@@ -18,22 +18,19 @@ export interface ReviewRow {
   created_at: string
 }
 
-function categoryToWineType(category: string): ReviewItem["wineType"] {
-  if (category === "WHITE") return "White"
-  if (category === "SPARKLING" || category === "CHAMP") return "Sparkling"
-  if (category === "ROSE") return "Rosé"
-  return "Red"
-}
-
 /**
  * ReviewRow(DB) + WineInfoLocal(로컬/커스텀) → ReviewItem(UI) 변환
  */
-export function toReviewItem(row: ReviewRow, wine?: WineInfoLocal | null): ReviewItem {
+export function toReviewItem(
+  row: ReviewRow,
+  wine?: WineInfoLocal | null,
+): ReviewItem {
   return {
     id: row.id,
+    wineId: row.wine_id,
     wineName: wine?.WINE_NM_KR || wine?.WINE_NM || `와인 #${row.wine_id}`,
     wineRegion: wine?.WINE_AREA || "",
-    wineType: wine ? categoryToWineType(wine.WINE_CATEGORY) : "Red",
+    wineType: wine ? (wine.WINE_CATEGORY as any) : "RED",
     vintage: 0,
     rating: row.rating,
     body: row.body,
@@ -41,6 +38,7 @@ export function toReviewItem(row: ReviewRow, wine?: WineInfoLocal | null): Revie
     sweetness: row.sweetness,
     acidity: row.acidity,
     comment: row.comment,
+    nickname: row.nickname,
     tags: [],
     imageUrl: "",
     createdAt: row.created_at.slice(0, 10),

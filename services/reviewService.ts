@@ -233,10 +233,46 @@ export const getWineById = async (
   // 1. JSON 로컬 데이터에서 검색
   const { getLocalWineById } = await import("./wineLocalService")
   const local = getLocalWineById(wineId)
-  if (local) return local
 
-  // 2. Supabase 커스텀 데이터에서 검색
-  return getCustomWineById(wineId)
+  // 2. JSON에 없으면 custom_wines에서 검색
+  const base = local ?? (await getCustomWineById(wineId))
+  if (!base) return null
+
+  // 3. wine_overrides 병합 (유저 제보 데이터 우선)
+  const { data: ov } = await supabase
+    .from("wine_overrides")
+    .select("*")
+    .eq("wine_id", wineId)
+    .maybeSingle()
+
+  if (!ov) return base
+  return {
+    ...base,
+    ...(ov.wine_nm && { WINE_NM: ov.wine_nm }),
+    ...(ov.wine_nm_kr && { WINE_NM_KR: ov.wine_nm_kr }),
+    ...(ov.wine_area && { WINE_AREA: ov.wine_area }),
+    ...(ov.wine_category && { WINE_CATEGORY: ov.wine_category }),
+    ...(ov.wine_abv != null && { WINE_ABV: Number(ov.wine_abv) }),
+    ...(ov.wine_prc != null && { WINE_PRC: Number(ov.wine_prc) }),
+  }
+}
+
+/** 와인 정보 수정 제보 → wine_overrides upsert */
+export const upsertWineOverride = async (
+  wineId: number,
+  data: Partial<Omit<WineInfoLocal, "WINE_ID">>,
+): Promise<void> => {
+  const { error } = await supabase.from("wine_overrides").upsert({
+    wine_id: wineId,
+    wine_nm: data.WINE_NM ?? null,
+    wine_nm_kr: data.WINE_NM_KR ?? null,
+    wine_area: data.WINE_AREA ?? null,
+    wine_category: data.WINE_CATEGORY ?? null,
+    wine_abv: data.WINE_ABV ?? null,
+    wine_prc: data.WINE_PRC ?? null,
+    updated_at: new Date().toISOString(),
+  })
+  if (error) throw error
 }
 
 /** 댓글 등록 (comments 테이블 미구현 → 클라이언트 낙관적 업데이트만 사용) */

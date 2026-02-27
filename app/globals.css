@@ -41,6 +41,30 @@ body {
   --adaptiveDimmedBackground: rgba(0, 0, 0, 0.4);
   --adaptiveHairlineBorder: #e5e8eb;
 
+  --adaptiveYellow50: #fff9e7;
+  --adaptiveYellow100: #ffefbf;
+  --adaptiveYellow200: #ffe69b;
+  --adaptiveYellow300: #ffdd78;
+  --adaptiveYellow400: #ffd158;
+  --adaptiveYellow500: #ffc342;
+  --adaptiveYellow600: #ffb331;
+  --adaptiveYellow700: #faa131;
+  --adaptiveYellow800: #ee8f11;
+  --adaptiveYellow900: #dd7d02;
+  /* TDS Badge Color Tokens */
+  --tBlueBadgeColor: #1b64da;
+  --tBlueBadgeBackground: rgba(49, 130, 246, 0.16);
+  --tTealBadgeColor: #0c8585;
+  --tTealBadgeBackground: rgba(0, 129, 138, 0.16);
+  --tGreenBadgeColor: #029359;
+  --tGreenBadgeBackground: rgba(2, 162, 98, 0.16);
+  --tRedBadgeColor: #d22030;
+  --tRedBadgeBackground: rgba(244, 67, 54, 0.16);
+  --tYellowBadgeColor: #dd7d02;
+  --tYellowBadgeBackground: rgba(255, 179, 49, 0.16);
+  --tElephantBadgeColor: #4e5968;
+  --tElephantBadgeBackground: rgba(78, 89, 104, 0.16);
+
   /* Blue Colors */
   --adaptiveBlue50: #e8f3ff;
   --adaptiveBlue100: #c9e2ff;
@@ -52,6 +76,17 @@ body {
   --adaptiveBlue700: #1b64da;
   --adaptiveBlue800: #1957c2;
   --adaptiveBlue900: #194aa6;
+
+  --adaptiveRed50: #ffeeee;
+  --adaptiveRed100: #ffd4d6;
+  --adaptiveRed200: #feafb4;
+  --adaptiveRed300: #fb8890;
+  --adaptiveRed400: #f66570;
+  --adaptiveRed500: #f04452;
+  --adaptiveRed600: #e42939;
+  --adaptiveRed700: #d22030;
+  --adaptiveRed800: #bc1b2a;
+  --adaptiveRed900: #a51926;
 }
 
 a {

@@ -30,6 +30,7 @@ export interface ReviewToken {
  */
 export interface ReviewItem {
   id: string
+  wineId: number
   wineName: string
   wineRegion: string
   wineType: "Red" | "White" | "Rosé" | "Sparkling"
@@ -42,6 +43,7 @@ export interface ReviewItem {
   comment: string
   tags: string[]
   imageUrl: string
+  nickname: string
   createdAt: string
 }
 
