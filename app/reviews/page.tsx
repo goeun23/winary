@@ -1,7 +1,7 @@
 import { createClient } from "@/supabase/server"
 import { toReviewItem, type ReviewRow } from "@/types/supabase"
 import { MOCK_REVIEWS } from "@/data/mockReviews"
-import WineListPage from "@/components/WineListPage"
+import ReviewListView from "@/components/Review/ReviewListView"
 import { readFileSync } from "fs"
 import { join } from "path"
 import type { WineInfoLocal } from "@/types/wine"
@@ -30,7 +30,9 @@ export default async function WineListRoute() {
       const localWineMap = loadLocalWineMap()
 
       // 커스텀 와인 일괄 조회
-      const customWineIds = data.filter((r) => r.is_custom).map((r) => r.wine_id)
+      const customWineIds = data
+        .filter((r) => r.is_custom)
+        .map((r) => r.wine_id)
       let customWineMap = new Map<number, WineInfoLocal>()
       if (customWineIds.length > 0) {
         const { data: customWines } = await supabase
@@ -63,5 +65,5 @@ export default async function WineListRoute() {
     // Supabase 미설정 시 mock 데이터 사용
   }
 
-  return <WineListPage reviews={reviews} />
+  return <ReviewListView reviews={reviews} />
 }

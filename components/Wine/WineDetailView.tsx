@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react"
 import { Text, BottomSheet } from "@toss/tds-mobile"
-import type { WineInfoLocal } from "../types/wine"
-import type { LocalReview } from "../types/review"
-import { CATEGORY_LABELS, CATEGORY_COLORS } from "../types/wine"
-import { getReviews, canEdit, getMyToken } from "../services/reviewService"
-import PageHeader from "../components/PageHeader"
+import type { WineInfoLocal } from "../../types/wine"
+import type { LocalReview } from "../../types/review"
+import { CATEGORY_LABELS, CATEGORY_COLORS } from "../../types/wine"
+import { getReviews, canEdit, getMyToken } from "../../services/reviewService"
+import PageLayout from "../PageLayout"
 
-interface WineDetailPageProps {
+interface WineDetailViewProps {
   wine: WineInfoLocal
   onBack: () => void
   onWriteReview: () => void
@@ -99,12 +99,12 @@ const StarDisplay = ({
   </div>
 )
 
-const WineDetailPage = ({
+const WineDetailView = ({
   wine,
   onBack,
   onWriteReview,
   onEditReview,
-}: WineDetailPageProps) => {
+}: WineDetailViewProps) => {
   const [reviews, setReviews] = useState<LocalReview[]>([])
   const [selectedReview, setSelectedReview] = useState<LocalReview | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
@@ -137,14 +137,7 @@ const WineDetailPage = ({
   }
 
   return (
-    <div
-      style={{
-        backgroundColor: "#f8f9fa",
-        minHeight: "100vh",
-        fontFamily: "Pretendard, -apple-system, sans-serif",
-        paddingBottom: "100px",
-      }}
-    >
+    <PageLayout title="와인 상세" onBack={onBack}>
       <style>{`
         @keyframes pageFadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -162,25 +155,8 @@ const WineDetailPage = ({
         }
       `}</style>
 
-      {/* Header */}
       <div
         style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
-          backgroundColor: "rgba(248,249,250,0.92)",
-          backdropFilter: "blur(12px)",
-          paddingTop: "env(safe-area-inset-top)",
-        }}
-      >
-        <div style={{ padding: "0 24px" }}>
-          <PageHeader onBack={onBack} />
-        </div>
-      </div>
-
-      <div
-        style={{
-          padding: "0 20px",
           display: "flex",
           flexDirection: "column",
           gap: "16px",
@@ -379,7 +355,7 @@ const WineDetailPage = ({
                     color: "#4e5968",
                   }}
                 >
-                  {review.nickname || "익명의 와인러버"}
+                  {review.nickname || "두쫀쿠"}
                 </Text>
                 <Text style={{ fontSize: "11px", color: "#b0b8c1" }}>
                   {new Date(review.createdAt).toLocaleDateString("ko-KR", {
@@ -456,7 +432,7 @@ const WineDetailPage = ({
                   color: "#191f28",
                 }}
               >
-                {selectedReview.nickname || "익명의 와인러버"}
+                {selectedReview.nickname || "와인도둑"}
               </Text>
               <Text style={{ fontSize: "12px", color: "#b0b8c1" }}>
                 {new Date(selectedReview.createdAt).toLocaleDateString(
@@ -657,8 +633,8 @@ const WineDetailPage = ({
           + 리뷰 작성하기
         </button>
       </div>
-    </div>
+    </PageLayout>
   )
 }
 
-export default WineDetailPage
+export default WineDetailView

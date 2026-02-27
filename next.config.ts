@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   transpilePackages: [
@@ -6,6 +6,6 @@ const nextConfig: NextConfig = {
     "@toss/tds-mobile-ait",
     "@toss/tds-colors",
   ],
-};
+}
 
-export default nextConfig;
+export default nextConfig

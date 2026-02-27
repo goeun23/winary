@@ -2,7 +2,6 @@ import { createClient } from "@/supabase/server"
 import { toReviewItem, type ReviewRow } from "@/types/supabase"
 import { adaptive } from "@toss/tds-colors"
 import { MOCK_REVIEWS, MOCK_COMMENTS } from "@/data/mockReviews"
-import ReviewDetailPage from "@/components/ReviewDetailPage"
 
 import { useState, useMemo } from "react"
 import {
@@ -14,7 +13,7 @@ import {
   ListRow,
   BottomSheet,
 } from "@toss/tds-mobile"
-import PageHeader from "@/components/PageHeader"
+import PageLayout from "@/components/PageLayout"
 
 import { join } from "path"
 import type { WineInfoLocal } from "@/types/wine"
@@ -22,7 +21,7 @@ import type { LocalReview } from "@/types/review"
 import { CATEGORY_LABELS } from "@/types/wine"
 import { createReview, updateReview } from "@/services/reviewService"
 
-interface ReviewDetailRouteProps {
+interface ReviewWriteViewProps {
   wine: WineInfoLocal
   onBack: () => void
   onSubmit: () => void
@@ -30,13 +29,13 @@ interface ReviewDetailRouteProps {
   editToken?: string
 }
 
-const ReviewWritePage = ({
+const ReviewWriteView = ({
   wine,
   onBack,
   onSubmit,
   editReview,
   editToken,
-}: ReviewDetailRouteProps) => {
+}: ReviewWriteViewProps) => {
   const isEditMode = !!editReview
 
   const [rating, setRating] = useState(editReview?.rating ?? 0)
@@ -139,20 +138,10 @@ const ReviewWritePage = ({
   }
 
   return (
-    <div
-      style={{
-        backgroundColor: "#f9fafb",
-        minHeight: "100vh",
-        paddingBottom: "100px",
-        fontFamily: "Pretendard, -apple-system, sans-serif",
-      }}
+    <PageLayout
+      title={isEditMode ? "리뷰 수정" : "맛과 생각 기록"}
+      onBack={onBack}
     >
-      <PageHeader
-        title={isEditMode ? "리뷰 수정" : "맛과 생각 기록"}
-        onBack={onBack}
-        backgroundColor="rgba(249, 250, 251, 0.85)"
-      />
-
       <div style={{ display: "flex", gap: "30px", flexDirection: "column" }}>
         {/* 선택한 와인 정보 */}
         <div>
@@ -199,7 +188,7 @@ const ReviewWritePage = ({
         </div>
       </div>
 
-      <div style={{ padding: "24px 20px" }}>
+      <div style={{ padding: "12px 0" }}>
         {/* 평점 섹션 - 기존 ReviewCreatePage 패턴 유지 */}
         <section style={{ marginBottom: "32px" }}>
           <Text
@@ -259,7 +248,7 @@ const ReviewWritePage = ({
           )}
         </section>
 
-        {/* 4가지 특성 - ReviewStep2Page와 동일한 BottomSheet 방식 */}
+        {/* 4가지 특성 - ReviewTasteView와 동일한 BottomSheet 방식 */}
         <div id="wine-review-container">
           <ListHeader
             title={
@@ -410,6 +399,7 @@ const ReviewWritePage = ({
           backgroundColor: "rgba(255, 255, 255, 0.85)",
           backdropFilter: "blur(12px)",
           borderTop: "1px solid #f2f4f6",
+          zIndex: 1000,
         }}
       >
         <Button
@@ -421,7 +411,7 @@ const ReviewWritePage = ({
           {isEditMode ? "수정 완료" : "리뷰 등록할게요"}
         </Button>
       </div>
-    </div>
+    </PageLayout>
   )
 }
-export default ReviewWritePage
+export default ReviewWriteView

@@ -1,11 +1,15 @@
 "use client"
+import { TDSMobileProvider } from "@toss/tds-mobile"
 
-import { ThemeProvider } from "@toss/tds-mobile"
+const defaultUserAgent = {
+  colorPreference: undefined,
+  fontA11y: undefined,
+  fontScale: undefined,
+  isAndroid: false,
+  isIOS: false,
+  safeAreaBottomTransparency: undefined,
+}
 
-export function TossThemeProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return <ThemeProvider>{children}</ThemeProvider>
+export function TossThemeProvider({ children }: { children: React.ReactNode }) {
+  return <TDSMobileProvider userAgent={defaultUserAgent}>{children}</TDSMobileProvider>
 }

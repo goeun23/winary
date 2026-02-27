@@ -26,3 +26,7 @@ export const searchLocalWines = (
 
   return results
 }
+
+export const getLocalWineById = (wineId: number): WineInfoLocal | null => {
+  return allWines.find((w) => w.WINE_ID === wineId) || null
+}

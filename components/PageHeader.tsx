@@ -19,7 +19,7 @@ interface PageHeaderProps {
 const PageHeader = ({
   title,
   onBack,
-  backgroundColor = "rgba(255, 255, 255, 0.85)",
+
   sticky = true,
   rightAction,
 }: PageHeaderProps) => {
@@ -33,11 +33,12 @@ const PageHeader = ({
         zIndex: 100,
         display: "flex",
         alignItems: "center",
-        padding: "calc(12px + env(safe-area-inset-top)) 20px 12px 20px",
-        backgroundColor,
+        padding: "16px 20px", // Standardized padding
+
         backdropFilter: sticky ? "blur(12px)" : undefined,
         WebkitBackdropFilter: sticky ? "blur(12px)" : undefined,
         borderBottom: "1px solid #f2f4f6",
+        backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent for blur effect
       }}
     >
       {/* 뒤로가기 버튼 */}
@@ -46,9 +47,9 @@ const PageHeader = ({
         style={{
           background: "none",
           border: "none",
-          padding: "8px",
+          padding: "4px",
           cursor: "pointer",
-          marginLeft: "-8px",
+          marginLeft: "-4px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -80,7 +81,9 @@ const PageHeader = ({
       </Text>
 
       {/* 우측 액션 (선택) */}
-      {rightAction && <div style={{ flexShrink: 0 }}>{rightAction}</div>}
+      {rightAction && (
+        <div style={{ flexShrink: 0, marginLeft: "12px" }}>{rightAction}</div>
+      )}
     </header>
   )
 }

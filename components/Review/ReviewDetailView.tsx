@@ -1,6 +1,6 @@
 import { Text } from "@toss/tds-mobile"
 import type { ReviewItem } from "../types/review"
-import PageHeader from "../components/PageHeader"
+import PageLayout from "../components/PageLayout"
 
 /**
  * 리뷰 상세 페이지
@@ -92,7 +92,7 @@ const CharacteristicBar = ({
   </div>
 )
 
-const ReviewDetailPage = ({
+const ReviewDetailView = ({
   review,
   onBack,
 }: {
@@ -100,16 +100,12 @@ const ReviewDetailPage = ({
   onBack: () => void
 }) => {
   return (
-    <div
-      style={{
-        backgroundColor: "#f9fafb",
-        minHeight: "100vh",
-        fontFamily: "Pretendard, -apple-system, sans-serif",
-      }}
+    <PageLayout
+      title="리뷰 상세"
+      onBack={onBack}
+      fullWidthContent={true}
+      topPadding={0}
     >
-      {/* 공통 헤더 */}
-      <PageHeader title="리뷰 상세" onBack={onBack} />
-
       {/* 상단 이미지 히어로 섹션 */}
       <div
         style={{
@@ -389,8 +385,8 @@ const ReviewDetailPage = ({
           </Text>
         </div>
       </div>
-    </div>
+    </PageLayout>
   )
 }
 
-export default ReviewDetailPage
+export default ReviewDetailView

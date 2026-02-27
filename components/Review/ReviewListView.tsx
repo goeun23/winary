@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import { Text } from "@toss/tds-mobile"
 import { useRouter } from "next/navigation"
-import PageHeader from "@/components/PageHeader"
+import PageLayout from "@/components/PageLayout"
 import type { ReviewItem } from "@/types/review"
 
 import {
@@ -45,13 +45,17 @@ const TYPE_BADGE = Object.fromEntries(
   ]),
 ) as Record<string, { bg: string; text: string; label: string; icon: string }>
 
-interface WineListPageProps {
+interface ReviewListViewProps {
   reviews: ReviewItem[]
   onBack?: () => void
   onSelectPost?: (postId: string) => void
 }
 
-const WineListPage = ({ reviews, onBack, onSelectPost }: WineListPageProps) => {
+const ReviewListView = ({
+  reviews,
+  onBack,
+  onSelectPost,
+}: ReviewListViewProps) => {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [isFocused, setIsFocused] = useState(false)
@@ -99,15 +103,9 @@ const WineListPage = ({ reviews, onBack, onSelectPost }: WineListPageProps) => {
   )
 
   return (
-    <div
-      style={{
-        backgroundColor: "#ffffff",
-        minHeight: "100vh",
-        fontFamily: "Pretendard, -apple-system, sans-serif",
-        display: "flex",
-        flexDirection: "column",
-        animation: "wlPageFadeIn 0.3s ease-out",
-      }}
+    <PageLayout
+      title="와인 리스트"
+      onBack={() => (onBack ? onBack() : router.back())}
     >
       <style>{`
         @keyframes wlPageFadeIn {
@@ -123,13 +121,8 @@ const WineListPage = ({ reviews, onBack, onSelectPost }: WineListPageProps) => {
         .wl-filter-btn:active { transform: scale(0.95); }
       `}</style>
 
-      <PageHeader
-        title="와인 리스트"
-        onBack={() => (onBack ? onBack() : router.push("/"))}
-      />
-
       {/* Search Bar */}
-      <div style={{ padding: "0 20px 8px 20px" }}>
+      <div style={{ padding: "0 0 8px 0" }}>
         <div style={{ position: "relative" }}>
           <div
             style={{
@@ -212,7 +205,10 @@ const WineListPage = ({ reviews, onBack, onSelectPost }: WineListPageProps) => {
         style={{
           display: "flex",
           gap: "8px",
-          padding: "8px 20px 16px 20px",
+          padding: "8px 0 16px 0",
+          margin: "0 -20px",
+          paddingLeft: "20px",
+          paddingRight: "20px",
           overflowX: "auto",
           WebkitOverflowScrolling: "touch",
           scrollbarWidth: "none",
@@ -243,7 +239,7 @@ const WineListPage = ({ reviews, onBack, onSelectPost }: WineListPageProps) => {
       </div>
 
       {/* Result Count */}
-      <div style={{ padding: "0 20px 8px 20px" }}>
+      <div style={{ padding: "0 0 8px 0" }}>
         <Text style={{ fontSize: "13px", color: "#8b95a1" }}>
           총 {filteredPosts.length}건
         </Text>
@@ -253,11 +249,10 @@ const WineListPage = ({ reviews, onBack, onSelectPost }: WineListPageProps) => {
       <div
         style={{
           flex: 1,
-          padding: "0 20px",
+          padding: 0,
           display: "flex",
           flexDirection: "column",
           gap: "12px",
-          paddingBottom: "calc(24px + env(safe-area-inset-bottom))",
         }}
       >
         {filteredPosts.length > 0 ? (
@@ -427,8 +422,8 @@ const WineListPage = ({ reviews, onBack, onSelectPost }: WineListPageProps) => {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   )
 }
 
-export default WineListPage
+export default ReviewListView

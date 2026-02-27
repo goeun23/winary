@@ -1,14 +1,15 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { Text, TextField, ListRow, BottomSheet } from "@toss/tds-mobile"
+import { Text, TextField, ListRow, BottomSheet, Button } from "@toss/tds-mobile"
 import { adaptive } from "@toss/tds-colors"
-import { searchLocalWines } from "../services/wineLocalService"
-import { searchAllWines, saveCustomWine } from "../services/reviewService"
-import type { WineInfoLocal } from "../types/wine"
-import { CATEGORY_LABELS, CATEGORY_COLORS, WINE_AREA } from "../types/wine"
-import PageHeader from "../components/PageHeader"
+import { searchLocalWines } from "../../services/wineLocalService"
+import { searchAllWines, saveCustomWine } from "../../services/reviewService"
+import type { WineInfoLocal } from "../../types/wine"
+import { CATEGORY_LABELS, CATEGORY_COLORS, WINE_AREA } from "../../types/wine"
+import PageLayout from "../PageLayout"
+import WineCardList from "../common/WineCardList"
 
-interface WineSearchPageProps {
+interface WineSearchViewProps {
   onBack: () => void
   onSelectWine: (wine: WineInfoLocal) => void
   onManualRegister: (
@@ -20,13 +21,14 @@ interface WineSearchPageProps {
   ) => void
 }
 
-const WineSearchPage = ({
+const WineSearchView = ({
   onBack,
   onSelectWine,
   onManualRegister,
-}: WineSearchPageProps) => {
+}: WineSearchViewProps) => {
   const [searchTerm, setSearchTerm] = useState("")
   const [results, setResults] = useState<WineInfoLocal[]>([])
+  const [displayCount, setDisplayCount] = useState(20) // number of items currently shown
   const [isFocused, setIsFocused] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
   const [isManualEntry, setIsManualEntry] = useState(false)
@@ -49,7 +51,18 @@ const WineSearchPage = ({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // 페이지 진입 시 자동 포커스
+  // Load persisted state if available (to keep search term & results when navigating back)
   useEffect(() => {
+    const saved = sessionStorage.getItem("wineSearchState")
+    if (saved) {
+      try {
+        const { searchTerm: s, results: r, displayCount: d } = JSON.parse(saved)
+        setSearchTerm(s)
+        setResults(r)
+        setDisplayCount(d ?? 20)
+        if (s) setHasSearched(true)
+      } catch (_) {}
+    }
     inputRef.current?.focus()
   }, [])
 
@@ -62,6 +75,7 @@ const WineSearchPage = ({
     if (!searchTerm.trim()) {
       setResults([])
       setHasSearched(false)
+      setDisplayCount(20)
       return
     }
 
@@ -69,6 +83,7 @@ const WineSearchPage = ({
       const searchResults = searchLocalWines(searchTerm)
       setResults(searchResults)
       setHasSearched(true)
+      setDisplayCount(20) // reset display count on new search
     }, 300)
 
     return () => {
@@ -82,23 +97,12 @@ const WineSearchPage = ({
     setSearchTerm("")
     setResults([])
     setHasSearched(false)
+    setDisplayCount(20)
     inputRef.current?.focus()
   }
 
   return (
-    <div
-      style={{
-        backgroundColor: "#ffffff",
-        minHeight: "100vh",
-        padding:
-          "calc(20px + env(safe-area-inset-top)) 24px calc(20px + env(safe-area-inset-bottom)) 24px",
-        fontFamily: "Pretendard, -apple-system, sans-serif",
-        display: "flex",
-        flexDirection: "column",
-        gap: "24px",
-        animation: "pageFadeIn 0.3s ease-out",
-      }}
-    >
+    <PageLayout title="와인 검색" onBack={onBack}>
       <style>
         {`
           @keyframes pageFadeIn {
@@ -119,9 +123,6 @@ const WineSearchPage = ({
           }
         `}
       </style>
-
-      {/* Header */}
-      <PageHeader title="와인 검색" onBack={onBack} />
 
       {!isManualEntry && (
         <div style={{ position: "relative" }}>
@@ -507,107 +508,7 @@ const WineSearchPage = ({
             >
               검색 결과 {results.length}건
             </Text>
-            {results.map((wine, index) => {
-              const catColor = CATEGORY_COLORS[
-                wine.WINE_CATEGORY as keyof typeof CATEGORY_COLORS
-              ] || {
-                bg: "#f2f4f6",
-                text: "#4e5968",
-              }
-              return (
-                <div
-                  key={wine.WINE_ID}
-                  className="wine-item"
-                  onClick={() => onSelectWine && onSelectWine(wine)}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "16px",
-                    borderRadius: "16px",
-                    backgroundColor: "#ffffff",
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-                    border: "1px solid #f2f4f6",
-                    cursor: "pointer",
-                    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                    animation: `itemFadeIn 0.3s ease-out ${index * 0.03}s both`,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "6px",
-                      flex: 1,
-                      marginRight: "12px",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "600",
-                        color: "#191f28",
-                        lineHeight: "1.4",
-                      }}
-                    >
-                      {wine.WINE_NM}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: "13px",
-                        color: "#4e5968",
-                        lineHeight: "1.3",
-                      }}
-                    >
-                      {wine.WINE_NM_KR}
-                    </Text>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "6px",
-                        alignItems: "center",
-                        flexWrap: "wrap",
-                        marginTop: "2px",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          padding: "2px 8px",
-                          borderRadius: "6px",
-                          backgroundColor: catColor.bg,
-                          color: catColor.text,
-                          fontWeight: "700",
-                        }}
-                      >
-                        {CATEGORY_LABELS[
-                          wine.WINE_CATEGORY as keyof typeof CATEGORY_LABELS
-                        ] || wine.WINE_CATEGORY}
-                      </span>
-                      <Text style={{ fontSize: "12px", color: "#8b95a1" }}>
-                        {wine.WINE_AREA}
-                      </Text>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      color: "#b0b8c1",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M9 6L15 12L9 18"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              )
-            })}
+            <WineCardList results={results} />
           </>
         ) : hasSearched && searchTerm ? (
           <div
@@ -686,8 +587,8 @@ const WineSearchPage = ({
           </div>
         )}
       </section>
-    </div>
+    </PageLayout>
   )
 }
 
-export default WineSearchPage
+export default WineSearchView

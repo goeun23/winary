@@ -18,6 +18,7 @@ import {
   WINE_TYPE_MAP,
   type WineCategory,
 } from "@/types/wine"
+import PageLayout from "@/components/PageLayout"
 
 const TYPE_ICON = Object.fromEntries(
   Object.entries(WINE_CATEGORY_CONFIG).map(([key, config]) => [
@@ -37,7 +38,7 @@ const HEADER_DATA: MainHeaderInfo = {
   description: "취향에 딱 맞는 와인을 함께 찾아드릴게요.",
 }
 
-interface MainPageProps {
+interface HomeViewProps {
   reviews: ReviewItem[]
   onNavigateSearch?: () => void
   onNavigateReviewCreate?: () => void
@@ -45,23 +46,23 @@ interface MainPageProps {
   onNavigateWineList?: () => void
 }
 
-const MainPage = ({
+const HomeView = ({
   reviews,
   onNavigateSearch,
   onNavigateReviewCreate,
   onNavigateReviewDetail,
   onNavigateWineList,
-}: MainPageProps) => {
+}: HomeViewProps) => {
   const router = useRouter()
 
   const handleSearchClick = () => {
     if (onNavigateSearch) onNavigateSearch()
-    else router.push("/search")
+    else router.push("/wines/search")
   }
 
   const handleReviewCreateClick = () => {
     if (onNavigateReviewCreate) onNavigateReviewCreate()
-    else router.push("/search")
+    else router.push("/wines/search")
   }
 
   const handleReviewDetailClick = (reviewId: string) => {
@@ -71,7 +72,7 @@ const MainPage = ({
 
   const handleWineListClick = () => {
     if (onNavigateWineList) onNavigateWineList()
-    else router.push("/wine-list")
+    else router.push("/reviews")
   }
 
   return (
@@ -263,4 +264,4 @@ const MainPage = ({
   )
 }
 
-export default MainPage
+export default HomeView

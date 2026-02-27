@@ -128,7 +128,16 @@ export const updateReview = async (
   comment: string,
 ): Promise<boolean> => {
   const { data, error } = await supabase.functions.invoke("update-review", {
-    body: { reviewId, token, rating, body, sweetness, acidity, tannin, comment },
+    body: {
+      reviewId,
+      token,
+      rating,
+      body,
+      sweetness,
+      acidity,
+      tannin,
+      comment,
+    },
   })
 
   if (error) return false
@@ -161,7 +170,9 @@ export const getCustomWines = async (): Promise<WineInfoLocal[]> => {
   return (data ?? []).map(toWineInfoLocal)
 }
 
-export const saveCustomWine = async (wine: WineInfoLocal): Promise<WineInfoLocal> => {
+export const saveCustomWine = async (
+  wine: WineInfoLocal,
+): Promise<WineInfoLocal> => {
   // 이미 존재하면 그대로 반환
   const { data: existing } = await supabase
     .from("custom_wines")
@@ -188,7 +199,9 @@ export const saveCustomWine = async (wine: WineInfoLocal): Promise<WineInfoLocal
   return toWineInfoLocal(data)
 }
 
-export const getCustomWineById = async (wineId: number): Promise<WineInfoLocal | null> => {
+export const getCustomWineById = async (
+  wineId: number,
+): Promise<WineInfoLocal | null> => {
   const { data } = await supabase
     .from("custom_wines")
     .select("*")
@@ -198,7 +211,10 @@ export const getCustomWineById = async (wineId: number): Promise<WineInfoLocal |
 }
 
 /** JSON + Supabase custom 통합 검색 */
-export const searchAllWines = async (query: string, limit = 5): Promise<WineInfoLocal[]> => {
+export const searchAllWines = async (
+  query: string,
+  limit = 5,
+): Promise<WineInfoLocal[]> => {
   const jsonResults = await searchLocalWines(query, limit)
 
   const { data } = await supabase
@@ -209,6 +225,18 @@ export const searchAllWines = async (query: string, limit = 5): Promise<WineInfo
 
   const customResults = (data ?? []).map(toWineInfoLocal)
   return [...jsonResults, ...customResults].slice(0, limit)
+}
+
+export const getWineById = async (
+  wineId: number,
+): Promise<WineInfoLocal | null> => {
+  // 1. JSON 로컬 데이터에서 검색
+  const { getLocalWineById } = await import("./wineLocalService")
+  const local = getLocalWineById(wineId)
+  if (local) return local
+
+  // 2. Supabase 커스텀 데이터에서 검색
+  return getCustomWineById(wineId)
 }
 
 /** 댓글 등록 (comments 테이블 미구현 → 클라이언트 낙관적 업데이트만 사용) */

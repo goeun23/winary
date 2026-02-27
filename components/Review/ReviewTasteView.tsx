@@ -15,20 +15,21 @@ import {
 import type { ReviewFormData } from "@/types/review"
 import { useState } from "react"
 import { adaptive } from "@toss/tds-colors"
+import PageLayout from "@/components/PageLayout"
 
-interface ReviewStep2PageProps {
+interface ReviewTasteViewProps {
   formData: ReviewFormData
   onUpdate: (updates: Partial<ReviewFormData>) => void
   onBack: () => void
   onNext: (finalData: ReviewFormData) => void
 }
 
-const ReviewStep2Page = ({
+const ReviewTasteView = ({
   formData,
   onUpdate,
   onBack,
   onNext,
-}: ReviewStep2PageProps) => {
+}: ReviewTasteViewProps) => {
   if (!formData) return null
 
   const [isOpen, setIsOpen] = useState(false)
@@ -55,20 +56,8 @@ const ReviewStep2Page = ({
   }
 
   return (
-    <div
-      style={{
-        backgroundColor: "#f9fafb",
-        minHeight: "100vh",
-        fontFamily: "Pretendard, -apple-system, sans-serif",
-      }}
-    >
-      {/* 상단 네비게이션 */}
-      <PageHeader
-        title="맛과 생각 기록 (2/3)"
-        onBack={onBack}
-        backgroundColor="rgba(249, 250, 251, 0.85)"
-      />
-      <div style={{ display: "flex", gap: "30px", flexDirection: "column" }}>
+    <PageLayout title="맛과 생각 기록 (2/3)" onBack={onBack}>
+      <div style={{ display: "flex", gap: "20px", flexDirection: "column" }}>
         {/* 선택한 와인 정보 간략 표시 */}
         <div>
           <ListHeader
@@ -81,8 +70,7 @@ const ReviewStep2Page = ({
                 와인정보
               </ListHeader.TitleParagraph>
             }
-            rightAlignment="center"
-            descriptionPosition="bottom"
+            style={{ paddingLeft: 0, paddingRight: 0 }}
           />
           <TableRow
             align="space-between"
@@ -103,6 +91,7 @@ const ReviewStep2Page = ({
             align="space-between"
             left="도수"
             right={formData.wineAbv ? `${formData.wineAbv}%` : "-"}
+            style={{ paddingLeft: 0, paddingRight: 0 }}
           />
         </div>
       </div>
@@ -120,6 +109,7 @@ const ReviewStep2Page = ({
           }
           rightAlignment="center"
           descriptionPosition="bottom"
+          style={{ paddingLeft: 0, paddingRight: 0 }}
         />
         <List>
           {[
@@ -211,8 +201,8 @@ const ReviewStep2Page = ({
           </Button>
         }
       />
-    </div>
+    </PageLayout>
   )
 }
 
-export default ReviewStep2Page
+export default ReviewTasteView
