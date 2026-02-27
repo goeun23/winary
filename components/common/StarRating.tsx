@@ -7,7 +7,7 @@ type StarRatingProps = {
 const StarRating = ({ value }: StarRatingProps) => {
   return (
     <Rating
-      readOnly={false}
+      readOnly={true}
       value={value}
       max={5}
       size="tiny"
