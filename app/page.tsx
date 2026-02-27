@@ -5,7 +5,7 @@ import HomeView from "@/components/HomeView"
 import { readFileSync } from "fs"
 import { join } from "path"
 import type { WineInfoLocal } from "@/types/wine"
-
+import type { Metadata } from "next"
 function loadLocalWineMap(): Map<number, WineInfoLocal> {
   try {
     const filePath = join(process.cwd(), "data", "wine-info.json")
@@ -14,6 +14,11 @@ function loadLocalWineMap(): Map<number, WineInfoLocal> {
   } catch {
     return new Map()
   }
+}
+
+export const metadata: Metadata = {
+  title: "와이너리",
+  description: "우리만 아는 와인 리뷰",
 }
 
 async function getRecentReviews(

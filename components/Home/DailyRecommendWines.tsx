@@ -1,6 +1,7 @@
 import { WineInfo, WineInfoLocal } from "@/types/wine"
 import { adaptive } from "@toss/tds-colors"
 import { Text } from "@toss/tds-mobile"
+import WineTypeBadge from "../common/WineTypeBadge"
 
 type DailyRecommendWinesProps = {
   recommendedWines: WineInfoLocal[]
@@ -42,13 +43,14 @@ const DailyRecommendWines = ({
             }}
           >
             <img
-              src={`/images/${item.WINE_CATEGORY}.png`}
+              src={`/images/${item.WINE_CATEGORY}_ICON.png`}
               alt={item.WINE_ID.toString()}
               style={{
                 width: "100%",
                 height: "100%",
                 objectFit: "contain",
                 borderRadius: "14px",
+                backgroundColor: "#fff",
               }}
             />
           </div>
@@ -71,7 +73,8 @@ const DailyRecommendWines = ({
                 color: "#191f28",
               }}
             >
-              {item.reviewCount}건의 리뷰
+              {item.reviewCount}건의 리뷰 |{" "}
+              <WineTypeBadge wineType={item.WINE_CATEGORY} /> | {item.WINE_ABV}%
             </Text>
           </div>
         </div>
