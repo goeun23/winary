@@ -1,10 +1,11 @@
-import { Badge } from "@toss/tds-mobile"
+import Badge from "./Badge"
 import { WineCategory } from "@/types/wine"
+
 type WineTypeBadgeProps = {
   wineType: WineCategory | string
 }
 
-const TypeInfo: Record<string, { label: string; color: any }> = {
+const TypeInfo: Record<string, { label: string; color: string }> = {
   RED: {
     label: "레드",
     color: "red",

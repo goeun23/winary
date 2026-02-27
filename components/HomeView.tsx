@@ -1,15 +1,10 @@
 "use client"
 
-import {
-  Asset,
-  Border,
-  ListFooter,
-  ListHeader,
-  ListRow,
-  Rating,
-  Top,
-} from "@toss/tds-mobile"
-import { adaptive } from "@toss/tds-colors"
+import Text from "@/components/common/Text"
+import Divider from "@/components/common/Divider"
+import { ListHeader, ListFooter } from "@/components/common/List/ListLayout"
+import ListRow from "@/components/common/List/ListRow"
+import Rating from "@/components/common/Rating"
 import { useRouter } from "next/navigation"
 import type { ReviewItem } from "@/types/review"
 import { type WineInfoLocal } from "@/types/wine"
@@ -43,11 +38,6 @@ const HomeView = ({
     setMounted(true)
   }, [])
 
-  const handleSearchClick = () => {
-    if (onNavigateSearch) onNavigateSearch()
-    else router.push("/wines/search")
-  }
-
   const handleReviewCreateClick = () => {
     if (onNavigateReviewCreate) onNavigateReviewCreate()
     else router.push("/wines/search")
@@ -64,7 +54,14 @@ const HomeView = ({
   }
 
   return (
-    <div style={{ display: "flex", gap: "30px", flexDirection: "column" }}>
+    <div
+      style={{
+        display: "flex",
+        gap: "30px",
+        flexDirection: "column",
+        paddingBottom: "40px",
+      }}
+    >
       <div
         id="top-main-container"
         style={{ padding: "0 20px", marginTop: "20px" }}
@@ -77,19 +74,23 @@ const HomeView = ({
               alignItems: "flex-start",
             }}
           >
-            <Top.TitleParagraph fontWeight="bold" size={28} typography="st2">
+            <Text fontWeight="bold" typography="t3">
               와인 리뷰를 <br />
               등록해주세요
-            </Top.TitleParagraph>
+            </Text>
 
             <div style={{ width: "100px", height: "100px" }}>
               {mounted ? (
-                <Asset.Video
-                  frameShape={{
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  style={{
                     height: 100,
                     width: 100,
+                    objectFit: "contain",
                   }}
-                  as="video"
                   src={animationVideo}
                 />
               ) : (
@@ -104,7 +105,7 @@ const HomeView = ({
               style={{
                 width: "100%",
                 padding: "16px",
-                backgroundColor: "#3182f6",
+                backgroundColor: "var(--adaptiveBlue500)",
                 color: "#ffffff",
                 border: "none",
                 borderRadius: "16px",
@@ -120,18 +121,17 @@ const HomeView = ({
       </div>
 
       <div id="daily-recommend-section">
-        <Border variant="height16" />
+        <Divider variant="height16" />
         <ListHeader
           title={
             <ListHeader.TitleParagraph
               typography="t5"
-              color={adaptive.grey800}
+              color="var(--adaptiveGrey800)"
               fontWeight="bold"
             >
               오늘은 이 와인을 추천드려요
             </ListHeader.TitleParagraph>
           }
-          rightAlignment="center"
         />
 
         <DailyRecommendWines
@@ -141,13 +141,13 @@ const HomeView = ({
       </div>
 
       <div style={{ display: "flex", gap: "10px", flexDirection: "column" }}>
-        <Border variant="height16" />
+        <Divider variant="height16" />
 
         <ListHeader
           title={
             <ListHeader.TitleParagraph
               typography="t5"
-              color={adaptive.grey800}
+              color="var(--adaptiveGrey800)"
               fontWeight="bold"
             >
               최근 등록된 리뷰
@@ -158,7 +158,6 @@ const HomeView = ({
               다른 사람들의 생생한 후기를 확인해보세요
             </ListHeader.DescriptionParagraph>
           }
-          rightAlignment="center"
         />
 
         <div id="recent-review-row">
@@ -175,14 +174,7 @@ const HomeView = ({
                 />
               }
               right={
-                <Rating
-                  readOnly={true}
-                  value={review.rating}
-                  max={5}
-                  size="medium"
-                  variant="compact"
-                  aria-label="별점 평가"
-                />
+                <Rating readOnly={true} value={review.rating} size="small" />
               }
               withArrow={true}
             />

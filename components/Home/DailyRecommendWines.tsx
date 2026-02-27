@@ -1,6 +1,5 @@
-import { WineInfo, WineInfoLocal } from "@/types/wine"
-import { adaptive } from "@toss/tds-colors"
-import { Text } from "@toss/tds-mobile"
+import { WineInfoLocal } from "@/types/wine"
+import Text from "../common/Text"
 import WineTypeBadge from "../common/WineTypeBadge"
 
 type DailyRecommendWinesProps = {
@@ -25,7 +24,7 @@ const DailyRecommendWines = ({
           onClick={() => handleWineDetailClick?.(item.WINE_ID)}
           key={item.WINE_ID}
           style={{
-            backgroundColor: "#f2f4f6",
+            backgroundColor: "var(--adaptiveGrey50)",
             borderRadius: "16px",
             overflow: "hidden",
             cursor: "pointer",
@@ -57,20 +56,25 @@ const DailyRecommendWines = ({
           <div style={{ padding: "0 14px 14px 14px" }}>
             <div>
               <Text
+                typography="t7"
+                fontWeight="600"
                 style={{
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  color: adaptive.grey800,
+                  color: "var(--adaptiveGrey800)",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
                 }}
               >
                 {item.WINE_NM_KR}({item.WINE_NM})
               </Text>
             </div>
             <Text
+              typography="t7"
+              fontWeight="600"
               style={{
+                color: "var(--adaptiveGrey900)",
                 fontSize: "11px",
-                fontWeight: 600,
-                color: "#191f28",
               }}
             >
               {item.reviewCount}건의 리뷰 |{" "}

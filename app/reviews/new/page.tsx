@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import WineSearchView from "@/components/Wine/WineSearchView"
 import ReviewWriteView from "@/components/Review/ReviewWriteView"
-import { Loader } from "@toss/tds-mobile"
+import Text from "@/components/common/Text"
 
 import {
   createReview,
@@ -214,8 +214,35 @@ export default function ReviewNewPage() {
   return (
     <Suspense
       fallback={
-        <div>
-          <Loader label={"정보를 불러오고있어요."} />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
+            gap: "16px",
+          }}
+        >
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              border: "4px solid var(--adaptiveGrey100)",
+              borderTop: "4px solid var(--adaptiveBlue500)",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+            }}
+          />
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+          <Text typography="t6" color="var(--adaptiveGrey600)">
+            정보를 불러오고 있어요.
+          </Text>
         </div>
       }
     >

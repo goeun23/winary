@@ -1,15 +1,11 @@
-import { adaptive } from "@toss/tds-colors"
-type WineIconProps = {
-  wineType: string
-}
-const WineIcon = ({ wineType }: WineIconProps) => {
+const WineIcon = ({ wineType }: { wineType: string }) => {
   return (
     <div
       style={{
         width: "50px",
         height: "50px",
         borderRadius: "50%",
-        backgroundColor: adaptive.grey100,
+        backgroundColor: "var(--adaptiveGrey100)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

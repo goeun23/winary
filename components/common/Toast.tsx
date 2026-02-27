@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from "react"
-import { Text } from "@toss/tds-mobile"
+import Text from "./Text"
 
 interface ToastProps {
   message: string
@@ -50,10 +50,10 @@ export const Toast = ({ message, duration = 2500, onClose }: ToastProps) => {
       }}
     >
       <Text
+        typography="t6"
+        fontWeight="600"
         style={{
           color: "#ffffff",
-          fontSize: "15px",
-          fontWeight: "600",
           textAlign: "center",
           letterSpacing: "-0.3px",
         }}

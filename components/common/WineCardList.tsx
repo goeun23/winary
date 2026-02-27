@@ -1,7 +1,7 @@
 import React from "react"
 import { WineInfoLocal } from "@/types/wine"
-import { Badge, ListRow, Text } from "@toss/tds-mobile"
-
+import ListRow from "@/components/common/List/ListRow"
+import Text from "./Text"
 import RightArrow from "./RightArrow"
 import WineIcon from "./WineIcon"
 import WineTypeBadge from "./WineTypeBadge"
@@ -20,18 +20,30 @@ const WineCardList = ({ results, onSelectWine }: WineCardListProps) => {
             <ListRow
               left={<WineIcon wineType={wine.WINE_CATEGORY} />}
               contents={
-                <ListRow.Texts
-                  type="2RowTypeA"
-                  top={wine.WINE_NM}
-                  bottom={
-                    <span
-                      style={{ display: "flex", alignItems: "center", gap: 8 }}
-                    >
-                      <WineTypeBadge wineType={wine.WINE_CATEGORY} />|{" "}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "2px",
+                  }}
+                >
+                  <Text typography="t6" fontWeight="bold">
+                    {wine.WINE_NM}
+                  </Text>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <WineTypeBadge wineType={wine.WINE_CATEGORY} />
+                    <span style={{ color: "var(--adaptiveGrey300)" }}>|</span>
+                    <Text typography="st2" color="var(--adaptiveGrey500)">
                       {wine.WINE_AREA} | {`${wine.WINE_ABV}%`}
-                    </span>
-                  }
-                />
+                    </Text>
+                  </div>
+                </div>
               }
               onClick={() => onSelectWine && onSelectWine(wine)}
               right={<RightArrow />}

@@ -1,21 +1,15 @@
 "use client"
 import { useState, useEffect } from "react"
-import {
-  Text,
-  BottomSheet,
-  TableRow,
-  List,
-  ListRow,
-  Button,
-  ListFooter,
-  Badge,
-  Rating,
-  Border,
-  Top,
-  Result,
-  Asset,
-  TextButton,
-} from "@toss/tds-mobile"
+import Text from "@/components/common/Text"
+import BottomSheet from "@/components/common/BottomSheet"
+import TableRow from "@/components/common/TableRow"
+import ListRow from "@/components/common/List/ListRow"
+import Button from "@/components/common/Button"
+import { ListHeader, ListFooter } from "@/components/common/List/ListLayout"
+import Badge from "@/components/common/Badge"
+import Rating from "@/components/common/Rating"
+import Divider from "@/components/common/Divider"
+
 import type { WineInfoLocal } from "../../types/wine"
 import type { LocalReview } from "../../types/review"
 
@@ -24,7 +18,6 @@ import PageLayout from "../PageLayout"
 import StarRating from "../common/StarRating"
 import ReviewBottomSheet from "../Review/ReviewBottimSheet"
 import RightArrow from "../common/RightArrow"
-import { adaptive } from "@toss/tds-colors"
 import { CharacteristicBar } from "../Review/CharactersticBar"
 import { ModifyWineInfoDialog } from "../Review/ModifyWineInfoDialog"
 import { Toast } from "../common/Toast"
@@ -108,23 +101,6 @@ const WineDetailView = ({
 
   return (
     <PageLayout title="와인 상세" onBack={onBack}>
-      <style>{`
-        @keyframes pageFadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes itemFadeIn {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .review-card:hover {
-          box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
-        }
-        .write-btn:active {
-          transform: scale(0.97);
-        }
-      `}</style>
-
       <div
         style={{
           display: "flex",
@@ -133,67 +109,115 @@ const WineDetailView = ({
           animation: "pageFadeIn 0.3s ease-out",
         }}
       >
+        <style>{`
+          @keyframes pageFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes itemFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
+
         {/* 와인 정보 카드 */}
         <div>
-          <Top
-            title={
-              <Top.TitleParagraph>{localWine.WINE_NM_KR}</Top.TitleParagraph>
-            }
-            subtitleTop={
-              <Top.SubtitleParagraph>{localWine.WINE_NM}</Top.SubtitleParagraph>
-            }
-          />
-          <List>
+          <div style={{ padding: "16px 20px" }}>
+            <Text
+              typography="t4"
+              fontWeight="bold"
+              color="var(--adaptiveGrey900)"
+            >
+              {localWine.WINE_NM_KR}
+            </Text>
+            <div style={{ marginTop: "4px" }}>
+              <Text typography="st2" color="var(--adaptiveGrey600)">
+                {localWine.WINE_NM}
+              </Text>
+            </div>
+          </div>
+          <div>
             <ListRow
-              contents={<ListRow.Texts type="1RowTypeA" top="지역" />}
-              right={<Text>{localWine.WINE_AREA}</Text>}
-            />
-            <ListRow
-              contents={<ListRow.Texts type="1RowTypeA" top="도수" />}
-              right={<Text>{localWine.WINE_ABV + "%"}</Text>}
-            />
-            <ListRow
-              contents={<ListRow.Texts type="1RowTypeA" top="가격" />}
-              right={<Text>{"₩" + localWine.WINE_PRC.toLocaleString()}</Text>}
-            />
-            <ListRow
-              contents={<ListRow.Texts type="1RowTypeA" top="종류" />}
-              right={<WineTypeBadge wineType={localWine.WINE_CATEGORY} />}
+              contents={
+                <Text typography="t7" color="var(--adaptiveGrey700)">
+                  지역
+                </Text>
+              }
+              right={
+                <Text typography="t7" fontWeight="600">
+                  {localWine.WINE_AREA}
+                </Text>
+              }
             />
             <ListRow
               contents={
-                <TextButton
-                  variant="underline"
-                  size="small"
-                  fontWeight="bold"
-                  color={adaptive.blue400}
-                  onClick={handleModifyWineInfo}
-                >
-                  정보가 잘못되었어요!
-                </TextButton>
+                <Text typography="t7" color="var(--adaptiveGrey700)">
+                  도수
+                </Text>
+              }
+              right={
+                <Text typography="t7" fontWeight="600">
+                  {localWine.WINE_ABV + "%"}
+                </Text>
               }
             />
-          </List>
+            <ListRow
+              contents={
+                <Text typography="t7" color="var(--adaptiveGrey700)">
+                  가격
+                </Text>
+              }
+              right={
+                <Text typography="t7" fontWeight="600">
+                  {"₩" + localWine.WINE_PRC.toLocaleString()}
+                </Text>
+              }
+            />
+            <ListRow
+              contents={
+                <Text typography="t7" color="var(--adaptiveGrey700)">
+                  종류
+                </Text>
+              }
+              right={<WineTypeBadge wineType={localWine.WINE_CATEGORY} />}
+            />
+            <div style={{ padding: "8px 20px" }}>
+              <Button
+                variant="text"
+                size="small"
+                onClick={handleModifyWineInfo}
+                style={{
+                  padding: "0",
+                  color: "var(--adaptiveBlue400)",
+                  textDecoration: "underline",
+                }}
+              >
+                정보가 잘못되었어요!
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
       <div id="review-average-starage-container">
         {reviews.length > 0 && (
           <>
-            <Top
-              title={<Top.TitleParagraph>테이스팅리뷰</Top.TitleParagraph>}
-              subtitleTop={
-                <Top.SubtitleParagraph>
+            <div style={{ padding: "16px 20px 8px" }}>
+              <Text typography="t5" fontWeight="bold">
+                테이스팅리뷰
+              </Text>
+              <div style={{ marginTop: "4px" }}>
+                <Text typography="st2" color="var(--adaptiveGrey500)">
                   리뷰어들의 평균 별점이에요.
-                </Top.SubtitleParagraph>
-              }
-            />
-            <List>
+                </Text>
+              </div>
+            </div>
+            <div>
               <CharacteristicBar label="당도" emoji="🍬" value={avgSweetness} />
               <CharacteristicBar label="산도" emoji="🍋" value={avgAcidity} />
               <CharacteristicBar label="바디" emoji="💪" value={avgBody} />
               <CharacteristicBar label="탄닌" emoji="🍇" value={avgTannin} />
               <CharacteristicBar label="전체" emoji="🍇" value={avgRating} />
-            </List>
+            </div>
             {!isOpenPersonalReview && (
               <ListFooter onClick={handlePersonalReview}>더 보기</ListFooter>
             )}
@@ -201,73 +225,79 @@ const WineDetailView = ({
         )}
       </div>
       <div id="review-section-container">
-        {/* 리뷰 목록 헤더 */}
-
         {/* 리뷰 없을 때 */}
         {reviews.length === 0 && (
-          <>
-            <Result
-              figure={
-                <Asset.Icon
-                  name="icn-info-line"
-                  frameShape={Asset.frameShape.CleanH24}
-                />
-              }
-              title="아직 리뷰가 없어요"
-              description={`첫 번째 리뷰를 등록해주세요`}
-            />
-          </>
+          <div
+            style={{
+              padding: "60px 20px",
+              textAlign: "center",
+              color: "var(--adaptiveGrey400)",
+            }}
+          >
+            <div style={{ fontSize: "40px", marginBottom: "16px" }}>ℹ️</div>
+            <Text
+              typography="t6"
+              fontWeight="bold"
+              color="var(--adaptiveGrey900)"
+            >
+              아직 리뷰가 없어요
+            </Text>
+            <div style={{ marginTop: "4px" }}>
+              <Text typography="st2">첫 번째 리뷰를 등록해주세요</Text>
+            </div>
+          </div>
         )}
 
         {/* 리뷰 카드 목록 */}
         {isOpenPersonalReview && reviews.length > 0 && (
-          <>
-            {reviews.map((review, index) => {
+          <div style={{ padding: "0 0 20px" }}>
+            {reviews.map((review) => {
               const editable = canEdit(review.id)
               return (
                 <div
                   key={review.id}
-                  className="review-card"
+                  style={{
+                    borderBottom: "1px solid var(--adaptiveHairlineBorder)",
+                  }}
                   onClick={() => {
                     setSelectedReview(review)
                     setIsDetailOpen(true)
                   }}
                 >
-                  <List>
-                    <ListRow
-                      contents={
-                        <>
-                          <ListRow.Texts
-                            type="2RowTypeA"
-                            top={<StarRating value={review.rating} />}
-                            bottom={
-                              <>
-                                <Text>{review.nickname}</Text>
-                                {editable && (
-                                  <Badge
-                                    size="small"
-                                    color="red"
-                                    variant="weak"
-                                  >
-                                    내 글
-                                  </Badge>
-                                )}
-                              </>
-                            }
-                          />
-                        </>
-                      }
-                      right={
-                        <Text>
-                          <RightArrow />
-                        </Text>
-                      }
-                    />
-                  </List>
+                  <ListRow
+                    contents={
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "4px",
+                        }}
+                      >
+                        <StarRating value={review.rating} />
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                          }}
+                        >
+                          <Text typography="st2" color="var(--adaptiveGrey600)">
+                            {review.nickname}
+                          </Text>
+                          {editable && (
+                            <Badge color="red" variant="weak">
+                              내 글
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    }
+                    right={<RightArrow />}
+                  />
                 </div>
               )
             })}
-          </>
+          </div>
         )}
       </div>
       {/* 하단 플로팅 버튼 여백 확보 */}
@@ -276,10 +306,10 @@ const WineDetailView = ({
       {/* 리뷰 상세 바텀 시트 */}
       <ReviewBottomSheet
         handleEdit={handleEdit}
+        header="리뷰 상세"
         open={isDetailOpen}
         onClose={() => setIsDetailOpen(false)}
         selectedReview={selectedReview}
-        header={<BottomSheet.Header>리뷰 상세</BottomSheet.Header>}
       />
 
       {/* 하단 고정: 리뷰 작성 버튼 */}
@@ -289,31 +319,21 @@ const WineDetailView = ({
           bottom: 0,
           left: 0,
           right: 0,
-          padding: "16px 20px calc(16px + env(safe-area-inset-bottom))",
-          backgroundColor: "rgba(248,249,250,0.95)",
+          padding: "16px 20px calc(16px + env(safe-area-inset-bottom, 24px))",
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
           backdropFilter: "blur(12px)",
-          borderTop: "1px solid #f2f4f6",
+          borderTop: "1px solid var(--adaptiveHairlineBorder)",
+          zIndex: 100,
         }}
       >
-        <button
-          className="write-btn"
+        <Button
+          size="large"
+          fullWidth
           onClick={onWriteReview}
-          style={{
-            width: "100%",
-            padding: "16px",
-            borderRadius: "14px",
-            border: "none",
-            backgroundColor: "#3182f6",
-            color: "#ffffff",
-            fontSize: "16px",
-            fontWeight: "600",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            boxShadow: "0 4px 12px rgba(49,130,246,0.3)",
-          }}
+          style={{ boxShadow: "0 4px 12px rgba(49,130,246,0.3)" }}
         >
           + 리뷰 작성하기
-        </button>
+        </Button>
       </div>
       {/* 수동 와인 정보 수정 다이얼로그 */}
       <ModifyWineInfoDialog

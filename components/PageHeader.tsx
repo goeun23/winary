@@ -1,6 +1,4 @@
-"use client"
-
-import { Text } from "@toss/tds-mobile"
+import Text from "@/components/common/Text"
 import { useRouter } from "next/navigation"
 
 interface PageHeaderProps {
@@ -37,7 +35,7 @@ const PageHeader = ({
 
         backdropFilter: sticky ? "blur(12px)" : undefined,
         WebkitBackdropFilter: sticky ? "blur(12px)" : undefined,
-        borderBottom: "1px solid #f2f4f6",
+        borderBottom: "1px solid var(--adaptiveHairlineBorder)",
         backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent for blur effect
       }}
     >
@@ -59,7 +57,7 @@ const PageHeader = ({
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path
             d="M15 18L9 12L15 6"
-            stroke="#191F28"
+            stroke="var(--adaptiveGrey900)"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -69,11 +67,11 @@ const PageHeader = ({
 
       {/* 제목 */}
       <Text
+        typography="t6"
+        fontWeight="bold"
+        color="var(--adaptiveGrey900)"
         style={{
           flex: 1,
-          fontSize: "18px",
-          fontWeight: "bold",
-          color: "#191f28",
           marginLeft: "8px",
         }}
       >

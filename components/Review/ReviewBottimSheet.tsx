@@ -1,6 +1,8 @@
 import { LocalReview } from "@/types/review"
-import { BottomSheet, Button, Text } from "@toss/tds-mobile"
-import { getReviews, canEdit, getMyToken } from "../../services/reviewService"
+import BottomSheet from "@/components/common/BottomSheet"
+import Button from "@/components/common/Button"
+import Text from "@/components/common/Text"
+
 type ReviewBottomSheetProps = {
   open: boolean
   onClose: (open: boolean) => void
@@ -36,7 +38,7 @@ const CharacteristicBar = ({
         }}
       >
         <span style={{ fontSize: "16px" }}>{emoji}</span>
-        <Text style={{ fontSize: "14px", fontWeight: 600, color: "#4e5968" }}>
+        <Text typography="st2" fontWeight="600" color="var(--adaptiveGrey700)">
           {label}
         </Text>
       </div>
@@ -55,16 +57,19 @@ const CharacteristicBar = ({
               flex: 1,
               height: "8px",
               borderRadius: "4px",
-              backgroundColor: level <= value ? "#3182f6" : "#e5e8eb",
+              backgroundColor:
+                level <= value
+                  ? "var(--adaptiveBlue500)"
+                  : "var(--adaptiveGrey200)",
             }}
           />
         ))}
       </div>
       <Text
+        typography="st2"
+        fontWeight="bold"
+        color="var(--adaptiveBlue500)"
         style={{
-          fontSize: "13px",
-          fontWeight: "bold",
-          color: "#3182f6",
           minWidth: "30px",
           textAlign: "right",
         }}
@@ -79,20 +84,11 @@ const ReviewBottomSheet = ({
   open,
   onClose,
   selectedReview,
-  handleEdit,
 }: ReviewBottomSheetProps) => {
   return (
-    <BottomSheet
-      open={open}
-      onClose={() => onClose(false)}
-      header={
-        <BottomSheet.Header>
-          <></>
-        </BottomSheet.Header>
-      }
-    >
+    <BottomSheet open={open} onClose={() => onClose(false)}>
       {selectedReview && (
-        <div style={{ padding: "0 20px 24px" }}>
+        <div style={{ padding: "0 4px 24px" }}>
           {/* 닉네임 + 날짜 */}
           <div
             style={{
@@ -103,15 +99,13 @@ const ReviewBottomSheet = ({
             }}
           >
             <Text
-              style={{
-                fontSize: "14px",
-                fontWeight: "700",
-                color: "#191f28",
-              }}
+              typography="t7"
+              fontWeight="700"
+              color="var(--adaptiveGrey900)"
             >
               {selectedReview.nickname || "와인도둑"}
             </Text>
-            <Text style={{ fontSize: "12px", color: "#b0b8c1" }}>
+            <Text typography="st2" color="var(--adaptiveGrey400)">
               {new Date(selectedReview.createdAt).toLocaleDateString("ko-KR", {
                 year: "numeric",
                 month: "short",
@@ -130,10 +124,10 @@ const ReviewBottomSheet = ({
             }}
           >
             <Text
+              typography="t2"
+              fontWeight="bold"
+              color="var(--adaptiveBlue500)"
               style={{
-                fontSize: "36px",
-                fontWeight: "bold",
-                color: "#3182f6",
                 lineHeight: "1",
               }}
             >
@@ -147,14 +141,16 @@ const ReviewBottomSheet = ({
                     style={{
                       fontSize: "16px",
                       color:
-                        star <= selectedReview.rating ? "#3182f6" : "#d1d5db",
+                        star <= selectedReview.rating
+                          ? "var(--adaptiveBlue500)"
+                          : "var(--adaptiveGrey200)",
                     }}
                   >
                     ★
                   </span>
                 ))}
               </div>
-              <Text style={{ fontSize: "13px", color: "#8b95a1" }}>
+              <Text typography="st2" color="var(--adaptiveGrey500)">
                 {
                   [
                     "",
@@ -172,7 +168,7 @@ const ReviewBottomSheet = ({
           {/* 테이스팅 노트 */}
           <div
             style={{
-              backgroundColor: "#f8f9fa",
+              backgroundColor: "var(--adaptiveGrey50)",
               borderRadius: "14px",
               padding: "16px 16px 2px",
               marginBottom: "16px",
@@ -204,26 +200,17 @@ const ReviewBottomSheet = ({
           {selectedReview.comment.trim() && (
             <div
               style={{
-                backgroundColor: "#f8f9fa",
+                backgroundColor: "var(--adaptiveGrey50)",
                 borderRadius: "14px",
                 padding: "16px",
                 marginBottom: "16px",
               }}
             >
               <Text
+                typography="st2"
                 style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  color: "#4e5968",
-                  display: "block",
-                  marginBottom: "8px",
-                }}
-              ></Text>
-              <Text
-                style={{
-                  fontSize: "14px",
                   lineHeight: "1.7",
-                  color: "#4e5968",
+                  color: "var(--adaptiveGrey700)",
                   whiteSpace: "pre-wrap",
                 }}
               >
@@ -231,21 +218,6 @@ const ReviewBottomSheet = ({
               </Text>
             </div>
           )}
-
-          {/* 수정하기 버튼 (내 리뷰 + 1시간 이내)
-          canEdit(selectedReview.id) && (
-            <Button
-              size="small"
-              onClick={() => {
-                onClose(false)
-                handleEdit(selectedReview)
-              }}
-            >
-              수정
-            </Button>
-          )
-          */}
-          {}
         </div>
       )}
     </BottomSheet>

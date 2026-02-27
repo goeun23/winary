@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import WineDetailView from "@/components/Wine/WineDetailView"
 import { getWineById } from "@/services/reviewService"
 import { WineInfoLocal } from "@/types/wine"
-import { Asset, Loader, Result } from "@toss/tds-mobile"
+import Text from "@/components/common/Text"
 
 export default function WineDetailRoute() {
   const params = useParams()
@@ -25,24 +25,64 @@ export default function WineDetailRoute() {
 
   if (loading)
     return (
-      <div>
-        <div>
-          <Loader label={"정보를 불러오고있어요."} />
-        </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          gap: "16px",
+        }}
+      >
+        <div
+          style={{
+            width: "40px",
+            height: "40px",
+            border: "4px solid var(--adaptiveGrey100)",
+            borderTop: "4px solid var(--adaptiveBlue500)",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite",
+          }}
+        />
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+        <Text typography="t6" color="var(--adaptiveGrey600)">
+          정보를 불러오고 있어요.
+        </Text>
       </div>
     )
+
   if (!wine)
     return (
-      <Result
-        figure={
-          <Asset.Icon
-            name="icn-info-line"
-            frameShape={Asset.frameShape.CleanH24}
-          />
-        }
-        title="오류가 발생했습니다."
-        description={`와인 정보를 불러올 수 없습니다\n다시 시도해주세요`}
-      />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          padding: "20px",
+          textAlign: "center",
+          gap: "12px",
+        }}
+      >
+        <div style={{ fontSize: "48px" }}>🍷</div>
+        <Text typography="t4" fontWeight="bold">
+          오류가 발생했습니다.
+        </Text>
+        <Text
+          typography="t6"
+          color="var(--adaptiveGrey600)"
+          style={{ whiteSpace: "pre-wrap" }}
+        >
+          {`와인 정보를 불러올 수 없습니다\n다시 시도해주세요`}
+        </Text>
+      </div>
     )
 
   return (
@@ -52,7 +92,6 @@ export default function WineDetailRoute() {
       onWriteReview={() => router.push(`/reviews/new?wineId=${wine.WINE_ID}`)}
       onEditReview={(review, token) => {
         // 수정 로직 (필요시 구현)
-        //router.push(`/reviews/edit?reviewId=${review.id}&token=${token}`)
       }}
     />
   )

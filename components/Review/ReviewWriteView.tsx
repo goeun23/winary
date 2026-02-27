@@ -1,15 +1,10 @@
-import { adaptive } from "@toss/tds-colors"
-
 import { useState, useMemo } from "react"
-import {
-  Button,
-  Text,
-  TableRow,
-  ListHeader,
-  List,
-  ListRow,
-  BottomSheet,
-} from "@toss/tds-mobile"
+import Button from "@/components/common/Button"
+import Text from "@/components/common/Text"
+import TableRow from "@/components/common/TableRow"
+import { ListHeader } from "@/components/common/List/ListLayout"
+import ListRow from "@/components/common/List/ListRow"
+import BottomSheet from "@/components/common/BottomSheet"
 import PageLayout from "@/components/PageLayout"
 
 import type { WineInfoLocal } from "@/types/wine"
@@ -105,7 +100,7 @@ const ReviewWriteView = ({
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#f9fafb",
+          backgroundColor: "var(--adaptiveGrey50)",
           gap: "16px",
           animation: "fadeIn 0.5s ease",
         }}
@@ -121,12 +116,10 @@ const ReviewWriteView = ({
         <div style={{ fontSize: "64px", animation: "bounceIn 0.6s ease" }}>
           🎉
         </div>
-        <Text
-          style={{ fontSize: "22px", fontWeight: "bold", color: "#191f28" }}
-        >
+        <Text typography="t5" fontWeight="bold" color="var(--adaptiveGrey900)">
           {isEditMode ? "수정했어요!" : "리뷰를 등록했어요!"}
         </Text>
-        <Text style={{ fontSize: "15px", color: "#8b95a1" }}>
+        <Text typography="st2" color="var(--adaptiveGrey400)">
           {isEditMode ? "" : "1시간 이내에 수정할 수 있어요"}
         </Text>
       </div>
@@ -142,28 +135,20 @@ const ReviewWriteView = ({
             title={
               <ListHeader.TitleParagraph
                 typography="t7"
-                color={adaptive.grey800}
+                color="var(--adaptiveGrey800)"
                 fontWeight="bold"
               >
                 와인정보
               </ListHeader.TitleParagraph>
             }
-            rightAlignment="center"
-            descriptionPosition="bottom"
           />
           <TableRow
-            align="space-between"
             left="선택한 와인"
             right={wine.WINE_NM_KR || wine.WINE_NM}
           />
-          <TableRow align="space-between" left="영문명" right={wine.WINE_NM} />
+          <TableRow left="영문명" right={wine.WINE_NM} />
+          <TableRow left="원산지" right={wine.WINE_AREA || "-"} />
           <TableRow
-            align="space-between"
-            left="원산지"
-            right={wine.WINE_AREA || "-"}
-          />
-          <TableRow
-            align="space-between"
             left="유형"
             right={
               CATEGORY_LABELS[
@@ -172,25 +157,21 @@ const ReviewWriteView = ({
             }
           />
           {wine.WINE_ABV > 0 && (
-            <TableRow
-              align="space-between"
-              left="도수"
-              right={`${wine.WINE_ABV}%`}
-            />
+            <TableRow left="도수" right={`${wine.WINE_ABV}%`} />
           )}
         </div>
       </div>
 
       <div style={{ padding: "12px 0" }}>
-        {/* 평점 섹션 - 기존 ReviewCreatePage 패턴 유지 */}
+        {/* 평점 섹션 */}
         <section style={{ marginBottom: "32px" }}>
           <Text
+            typography="t6"
+            fontWeight="bold"
             style={{
-              fontSize: "18px",
-              fontWeight: "bold",
               marginBottom: "16px",
               display: "block",
-              color: "#191f28",
+              color: "var(--adaptiveGrey900)",
             }}
           >
             총 평점
@@ -207,7 +188,10 @@ const ReviewWriteView = ({
                   background: "none",
                   border: "none",
                   cursor: "pointer",
-                  color: star <= rating ? "#3182f6" : "#d1d5db",
+                  color:
+                    star <= rating
+                      ? "var(--adaptiveBlue500)"
+                      : "var(--adaptiveGrey300)",
                   transition: "all 0.15s ease",
                   transform: star <= rating ? "scale(1.1)" : "scale(1)",
                 }}
@@ -221,7 +205,7 @@ const ReviewWriteView = ({
               style={{
                 textAlign: "center",
                 fontSize: "14px",
-                color: "#3182f6",
+                color: "var(--adaptiveBlue500)",
                 fontWeight: 600,
                 marginTop: "8px",
                 display: "block",
@@ -241,22 +225,20 @@ const ReviewWriteView = ({
           )}
         </section>
 
-        {/* 4가지 특성 - ReviewTasteView와 동일한 BottomSheet 방식 */}
+        {/* 4가지 특성 */}
         <div id="wine-review-container">
           <ListHeader
             title={
               <ListHeader.TitleParagraph
                 typography="t7"
-                color={adaptive.grey800}
+                color="var(--adaptiveGrey800)"
                 fontWeight="bold"
               >
                 종합평가
               </ListHeader.TitleParagraph>
             }
-            rightAlignment="center"
-            descriptionPosition="bottom"
           />
-          <List>
+          <div>
             {[
               { label: "당도", key: "sweetness", emoji: "🍬" },
               { label: "산도", key: "acidity", emoji: "🍋" },
@@ -278,20 +260,25 @@ const ReviewWriteView = ({
                       display: "flex",
                       alignItems: "center",
                       gap: "8px",
-                      color: "#3182f6",
+                      color: "var(--adaptiveBlue500)",
                       fontWeight: "bold",
                       fontSize: "15px",
                     }}
                   >
                     {characteristicValues[item.key]}
-                    <span style={{ color: "#adb5bd", fontSize: "12px" }}>
+                    <span
+                      style={{
+                        color: "var(--adaptiveGrey400)",
+                        fontSize: "12px",
+                      }}
+                    >
                       &gt;
                     </span>
                   </div>
                 }
               />
             ))}
-          </List>
+          </div>
         </div>
 
         <div style={{ padding: "0 16px" }}>
@@ -299,11 +286,9 @@ const ReviewWriteView = ({
             open={isSheetOpen}
             onClose={() => setIsSheetOpen(false)}
             header={
-              <BottomSheet.Header>
-                {activeCharacteristic
-                  ? `${activeCharacteristic.label}를 선택해주세요.`
-                  : "값을 선택해주세요."}
-              </BottomSheet.Header>
+              activeCharacteristic
+                ? `${activeCharacteristic.label}를 선택해주세요.`
+                : "값을 선택해주세요."
             }
           >
             {activeCharacteristic && (
@@ -326,19 +311,23 @@ const ReviewWriteView = ({
         </div>
 
         {/* 리뷰 텍스트 */}
-        <section style={{ marginBottom: "32px" }}>
+        <section style={{ marginBottom: "32px", padding: "0 4px" }}>
           <Text
+            typography="t6"
+            fontWeight="bold"
             style={{
-              fontSize: "18px",
-              fontWeight: "bold",
               marginBottom: "16px",
               display: "block",
-              color: "#191f28",
+              color: "var(--adaptiveGrey900)",
             }}
           >
             내 생각 적기{" "}
             <span
-              style={{ fontSize: "14px", color: "#8b95a1", fontWeight: 400 }}
+              style={{
+                fontSize: "14px",
+                color: "var(--adaptiveGrey500)",
+                fontWeight: 400,
+              }}
             >
               (선택)
             </span>
@@ -353,7 +342,7 @@ const ReviewWriteView = ({
               minHeight: "140px",
               padding: "16px",
               borderRadius: "14px",
-              border: "1px solid #e5e8eb",
+              border: "1px solid var(--adaptiveGrey200)",
               fontSize: "16px",
               outline: "none",
               resize: "none",
@@ -363,13 +352,17 @@ const ReviewWriteView = ({
               lineHeight: "1.6",
               boxSizing: "border-box",
             }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "#3182f6")}
-            onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e8eb")}
+            onFocus={(e) =>
+              (e.currentTarget.style.borderColor = "var(--adaptiveBlue500)")
+            }
+            onBlur={(e) =>
+              (e.currentTarget.style.borderColor = "var(--adaptiveGrey200)")
+            }
           />
           <Text
             style={{
               fontSize: "12px",
-              color: "#b0b8c1",
+              color: "var(--adaptiveGrey400)",
               marginTop: "8px",
               display: "block",
               textAlign: "right",
@@ -388,10 +381,10 @@ const ReviewWriteView = ({
           left: 0,
           right: 0,
           padding: "16px 24px",
-          paddingBottom: "calc(16px + env(safe-area-inset-bottom))",
+          paddingBottom: "calc(16px + env(safe-area-inset-bottom, 24px))",
           backgroundColor: "rgba(255, 255, 255, 0.85)",
           backdropFilter: "blur(12px)",
-          borderTop: "1px solid #f2f4f6",
+          borderTop: "1px solid var(--adaptiveHairlineBorder)",
           zIndex: 1000,
         }}
       >
@@ -399,7 +392,7 @@ const ReviewWriteView = ({
           size="large"
           disabled={isSubmitDisabled}
           onClick={handleSubmit}
-          style={{ width: "100%" }}
+          fullWidth
         >
           {isEditMode ? "수정 완료" : "리뷰 등록할게요"}
         </Button>
